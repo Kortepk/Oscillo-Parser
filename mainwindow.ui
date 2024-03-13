@@ -76,7 +76,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="spinBox">
+         <widget class="QSpinBox" name="Counter_channel_Box">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -249,6 +249,9 @@
           </rect>
          </property>
          <layout class="QVBoxLayout" name="Oscillo_Channel_Area_verticalLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QGroupBox" name="Channel1_groupBox">
             <property name="sizePolicy">
