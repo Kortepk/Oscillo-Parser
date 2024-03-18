@@ -27,14 +27,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     QGroupBox_pointer[0] = ui->Channel1_groupBox; // Main oscillo GroupBox
 
-    QSerialPortInfo::availablePorts();
-    //**      **//
-
-    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
-        qDebug() << "Name : " << info.portName();
-        qDebug() << "Description : " << info.description();
-        qDebug() << "Manufacturer: " << info.manufacturer();
-    }
 
 #if 0
     QGridLayout  * layout = new QGridLayout;
@@ -51,7 +43,6 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete SetDial;
 }
 
 void MainWindow::initActionsConnections()
@@ -130,7 +121,5 @@ void MainWindow::on_Connect_action_triggered()
 void MainWindow::on_PortSettings_action_triggered()
 {
     qDebug() << "Show";
-    SetDial->show();
-
 }
 
