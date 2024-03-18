@@ -24,6 +24,10 @@ private slots:
 
     void on_Counter_channel_Box_valueChanged(int arg1);
 
+    void on_Connect_action_triggered();
+
+    void on_PortSettings_action_triggered();
+
 private:
     Ui::MainWindow *ui;
     void ChangeGroupSize(int val);

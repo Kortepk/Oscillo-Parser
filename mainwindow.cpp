@@ -107,3 +107,16 @@ void MainWindow::on_Counter_channel_Box_valueChanged(int arg1)
     Last_Num_Channel = arg1;
 }
 
+
+
+void MainWindow::on_Connect_action_triggered()
+{
+    if()
+}
+
+
+void MainWindow::on_PortSettings_action_triggered()
+{
+
+}
+
