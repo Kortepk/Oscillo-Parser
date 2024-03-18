@@ -9,6 +9,8 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
+class SettingsDialog;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -19,17 +21,16 @@ public:
 
 private slots:
     void on_Group_Size_Slider_sliderMoved(int position);
-
     void on_Group_Size_Box_valueChanged(int arg1);
-
     void on_Counter_channel_Box_valueChanged(int arg1);
-
     void on_Connect_action_triggered();
-
     void on_PortSettings_action_triggered();
 
 private:
     Ui::MainWindow *ui;
     void ChangeGroupSize(int val);
+    void initActionsConnections(void);
+
+    SettingsDialog *SetDial = nullptr;
 };
 #endif // MAINWINDOW_H

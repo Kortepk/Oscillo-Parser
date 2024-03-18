@@ -5,18 +5,23 @@
 #include <QtCore/QtDebug>
 #include <QPushButton>
 
+#include "settingsdialog.h"
+
 int Last_Num_Channel = 1;
 QSpacerItem *refOscilloSpacer;
 
 QGroupBox* QGroupBox_pointer[10]; // Массив указателей
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : QMainWindow(parent),
+    ui(new Ui::MainWindow),
+    SetDial(new SettingsDialog(this))
 {
     ui->setupUi(this);
 
     //** init **//
+    initActionsConnections();
+
     refOscilloSpacer = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->Oscillo_Channel_Area_verticalLayout->addItem(refOscilloSpacer);
 
@@ -46,7 +51,14 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete SetDial;
 }
+
+void MainWindow::initActionsConnections()
+{
+    connect(ui->PortSettings_action, &QAction::triggered, SetDial, &SettingsDialog::show);
+}
+
 
 void MainWindow::ChangeGroupSize(int val)
 {
@@ -111,12 +123,14 @@ void MainWindow::on_Counter_channel_Box_valueChanged(int arg1)
 
 void MainWindow::on_Connect_action_triggered()
 {
-    if()
+
 }
 
 
 void MainWindow::on_PortSettings_action_triggered()
 {
+    qDebug() << "Show";
+    SetDial->show();
 
 }
 
