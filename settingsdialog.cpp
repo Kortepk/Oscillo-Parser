@@ -2,7 +2,10 @@
 #include "ui_settingsdialog.h"
 #include "QSerialPort"
 #include <QSerialPortInfo>
-#include "QDebug"
+#include <QFile>
+#include <QDebug>
+#include <QErrorMessage>
+#include <QSettings>
 
 static const char blankString[] = QT_TRANSLATE_NOOP("SettingsDialog", "N/A");
 
@@ -12,13 +15,73 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
+    QValidator *validator = new QIntValidator(1, 99999999, this);
+    ui->baudRateBox->setValidator(validator);
+
     fillPortsParameters();
     fillPortsInfo();
+    LoadSettings();
 }
 
 SettingsDialog::~SettingsDialog()
 {
     delete ui;
+}
+
+// CloseEvent не нужен
+
+void SettingsDialog::LoadSettings()
+{
+    QFile file("comport.ini");
+
+    if (!file.exists()) { // Файл не существует
+        file.open(QIODevice::ReadWrite);
+
+        if (file.isOpen()) {
+            QTextStream stream(&file);
+            stream << "[port_parametrs]\n"
+                      "PortName=COM1\n"
+                      "Baudrate=115200\n"
+                      "DataBits=8\n"
+                      "Parity=None\n"
+                      "StopBits=1\n"
+                      "FlowControl=None";
+
+            file.close();
+        } else {
+            (new QErrorMessage(this))->showMessage("Failed to create file.");
+            return;
+        }
+    }
+
+    QSettings iniSettings("comport.ini", QSettings::IniFormat);
+
+    iniSettings.beginGroup("port_parametrs");
+    m_currentSettings.name = iniSettings.value("PortName", "COM1").toString();
+    m_currentSettings.stringBaudRate = iniSettings.value("Baudrate", "115200").toString();
+    m_currentSettings.stringDataBits = iniSettings.value("DataBits", "8").toInt();
+    m_currentSettings.stringParity = iniSettings.value("Parity", "None").toString();
+    m_currentSettings.stringStopBits = iniSettings.value("StopBits", "1").toString();
+    m_currentSettings.stringFlowControl = iniSettings.value("FlowControl", "None").toString();
+    iniSettings.endGroup();
+
+    // Set parametrs in box
+    ui->baudRateBox->setText(m_currentSettings.stringBaudRate);
+    ui->dataBitsBox->setCurrentText(m_currentSettings.stringDataBits);
+    ui->parityBox->setCurrentText(m_currentSettings.stringParity);
+    ui->stopBitsBox->setCurrentText(m_currentSettings.stringStopBits);
+    ui->flowControlBox->setCurrentText(m_currentSettings.stringFlowControl);
+    ui->serialPortInfoListBox->setCurrentText(m_currentSettings.name);
+
+    m_currentSettings.baudRate = m_currentSettings.stringBaudRate.toInt();
+    const auto dataBitsData = ui->dataBitsBox->currentData();
+    m_currentSettings.dataBits = dataBitsData.value<QSerialPort::DataBits>();
+    const auto parityData = ui->parityBox->currentData();
+    m_currentSettings.parity = parityData.value<QSerialPort::Parity>();
+    const auto stopBitsData = ui->stopBitsBox->currentData();
+    m_currentSettings.stopBits = stopBitsData.value<QSerialPort::StopBits>();
+    const auto flowControlData = ui->flowControlBox->currentData();
+    m_currentSettings.flowControl = flowControlData.value<QSerialPort::FlowControl>();
 }
 
 SettingsDialog::Settings SettingsDialog::settings() const
@@ -32,7 +95,6 @@ void SettingsDialog::fillPortsParameters()
     ui->dataBitsBox->addItem(QStringLiteral("6"), QSerialPort::Data6);
     ui->dataBitsBox->addItem(QStringLiteral("7"), QSerialPort::Data7);
     ui->dataBitsBox->addItem(QStringLiteral("8"), QSerialPort::Data8);
-    ui->dataBitsBox->setCurrentIndex(3);
 
     ui->parityBox->addItem(tr("None"), QSerialPort::NoParity);
     ui->parityBox->addItem(tr("Even"), QSerialPort::EvenParity);
@@ -79,7 +141,7 @@ void SettingsDialog::fillPortsInfo()
 void SettingsDialog::on_Apply_pushButton_released()
 {
     updateSettings();
-
+    //TODO Save port settings from file
     hide();
 }
 
@@ -106,4 +168,23 @@ void SettingsDialog::updateSettings()
     const auto flowControlData = ui->flowControlBox->currentData();
     m_currentSettings.flowControl = flowControlData.value<QSerialPort::FlowControl>();
     m_currentSettings.stringFlowControl = ui->flowControlBox->currentText();
+
+
+    QFile file("comport.ini");
+    file.open(QIODevice::WriteOnly);
+    if (!file.isOpen()) {
+        (new QErrorMessage(this))->showMessage("Failed to create file and write init.");
+        return;
+    }
+
+    QTextStream stream(&file);
+    stream << "[port_parametrs]\n"
+              "PortName=" +  m_currentSettings.name + "\n"
+              "Baudrate=" +  m_currentSettings.stringBaudRate + "\n"
+              "DataBits=" +  m_currentSettings.stringDataBits + "\n"
+              "Parity=" +  m_currentSettings.stringParity + "\n"
+              "StopBits=" +  m_currentSettings.stringStopBits + "\n"
+              "FlowControl=" +  m_currentSettings.stringFlowControl + "";
+
+    file.close();
 }

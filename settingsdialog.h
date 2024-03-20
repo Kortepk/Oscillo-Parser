@@ -26,6 +26,7 @@ public:
         QSerialPort::FlowControl flowControl;
         QString stringFlowControl;
     };
+    void LoadSettings(void);
 
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
@@ -33,7 +34,6 @@ public:
     Settings settings() const;
 
 private slots:
-
     void on_Apply_pushButton_released();
 
 private:

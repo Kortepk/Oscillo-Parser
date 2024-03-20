@@ -30,6 +30,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+
 void MainWindow::initSettings()
 {
     //** init **//
@@ -45,7 +46,8 @@ void MainWindow::initSettings()
 
     QVBoxLayout *groupBoxLayout = new QVBoxLayout();
     groupBoxLayout->addWidget(chartView); // Создаём текст внутри GroupBox
-    delete ui->Channel1_groupBox->layout();
+
+    delete ui->Channel1_groupBox->layout(); // Удаляем layout от дизайнера
     ui->Channel1_groupBox->setLayout(groupBoxLayout);
 
     refOscilloSpacer = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -133,12 +135,19 @@ void MainWindow::on_Counter_channel_Box_valueChanged(int arg1)
 
 void MainWindow::on_Connect_action_triggered()
 {
+    const SettingsDialog::Settings settings = SetDial->settings();
 
+    qDebug() << "Name:" << settings.name;
+    qDebug() << "Baud Rate:" << settings.baudRate << "(" << settings.stringBaudRate << ")";
+    qDebug() << "Data Bits:" << settings.dataBits << "(" << settings.stringDataBits << ")";
+    qDebug() << "Parity:" << settings.parity << "(" << settings.stringParity << ")";
+    qDebug() << "Stop Bits:" << settings.stopBits << "(" << settings.stringStopBits << ")";
+    qDebug() << "Flow Control:" << settings.flowControl << "(" << settings.stringFlowControl << ")";
 }
 
 
 void MainWindow::on_PortSettings_action_triggered()
 {
-    qDebug() << "Show";
+    SetDial->LoadSettings();
 }
 
