@@ -21,6 +21,11 @@ SettingsDialog::~SettingsDialog()
     delete ui;
 }
 
+SettingsDialog::Settings SettingsDialog::settings() const
+{
+    return m_currentSettings;
+}
+
 void SettingsDialog::fillPortsParameters()
 {
     ui->dataBitsBox->addItem(QStringLiteral("5"), QSerialPort::Data5);
@@ -73,6 +78,32 @@ void SettingsDialog::fillPortsInfo()
 
 void SettingsDialog::on_Apply_pushButton_released()
 {
+    updateSettings();
+
     hide();
 }
 
+void SettingsDialog::updateSettings()
+{
+    m_currentSettings.name = ui->serialPortInfoListBox->currentText();
+
+    m_currentSettings.baudRate = ui->baudRateBox->text().toInt();
+
+    m_currentSettings.stringBaudRate = QString::number(m_currentSettings.baudRate);
+
+    const auto dataBitsData = ui->dataBitsBox->currentData();
+    m_currentSettings.dataBits = dataBitsData.value<QSerialPort::DataBits>();
+    m_currentSettings.stringDataBits = ui->dataBitsBox->currentText();
+
+    const auto parityData = ui->parityBox->currentData();
+    m_currentSettings.parity = parityData.value<QSerialPort::Parity>();
+    m_currentSettings.stringParity = ui->parityBox->currentText();
+
+    const auto stopBitsData = ui->stopBitsBox->currentData();
+    m_currentSettings.stopBits = stopBitsData.value<QSerialPort::StopBits>();
+    m_currentSettings.stringStopBits = ui->stopBitsBox->currentText();
+
+    const auto flowControlData = ui->flowControlBox->currentData();
+    m_currentSettings.flowControl = flowControlData.value<QSerialPort::FlowControl>();
+    m_currentSettings.stringFlowControl = ui->flowControlBox->currentText();
+}

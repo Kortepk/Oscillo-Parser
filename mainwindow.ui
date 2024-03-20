@@ -64,6 +64,12 @@
            <height>368</height>
           </rect>
          </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <layout class="QVBoxLayout" name="Oscillo_Channel_Area_verticalLayout">
           <property name="spacing">
            <number>0</number>
@@ -79,7 +85,7 @@
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>50</height>
+              <height>150</height>
              </size>
             </property>
             <property name="title">
@@ -88,18 +94,7 @@
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <widget class="QGraphicsView" name="graphicsView_Channel1">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <layout class="QHBoxLayout" name="horizontalLayout_5"/>
            </widget>
           </item>
          </layout>
@@ -246,13 +241,13 @@
              <bool>false</bool>
             </property>
             <property name="minimum">
-             <number>50</number>
+             <number>150</number>
             </property>
             <property name="maximum">
              <number>9999</number>
             </property>
             <property name="value">
-             <number>200</number>
+             <number>150</number>
             </property>
            </widget>
           </item>
@@ -261,7 +256,7 @@
         <item>
          <widget class="QSlider" name="Group_Size_Slider">
           <property name="minimum">
-           <number>200</number>
+           <number>150</number>
           </property>
           <property name="maximum">
            <number>1000</number>

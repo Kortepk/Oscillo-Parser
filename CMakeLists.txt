@@ -81,3 +81,7 @@ endif()
 
 find_package(Qt5  REQUIRED COMPONENTS SerialPort)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::SerialPort)
+
+set(Qt5Charts_DIR "D:/Programs/QT-5/5.15.0/mingw81_64/lib/cmake/Qt5Charts/Qt5ChartsConfig.cmake")
+find_package(Qt5 REQUIRED COMPONENTS Charts)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Charts)

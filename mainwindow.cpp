@@ -4,6 +4,9 @@
 #include <QtSerialPort/QSerialPortInfo>
 #include <QtCore/QtDebug>
 #include <QPushButton>
+#include <QChart>
+#include <QLineSeries>
+#include <QChartView>
 
 #include "settingsdialog.h"
 
@@ -19,30 +22,36 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    //** init **//
-    initActionsConnections();
-
-    refOscilloSpacer = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->Oscillo_Channel_Area_verticalLayout->addItem(refOscilloSpacer);
-
-    QGroupBox_pointer[0] = ui->Channel1_groupBox; // Main oscillo GroupBox
-
-
-#if 0
-    QGridLayout  * layout = new QGridLayout;
-    for (int i = 0; i < 10; ++i)
-        for (int j = 0; j < 7; ++j) {
-            QPushButton  * button = new QPushButton(QString::number(i) + "x" + QString::number(j));
-            layout->addWidget(button, i, j);
-        }
-
-    ui->scrollArea->setLayout(layout);
-#endif
+    initSettings();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::initSettings()
+{
+    //** init **//
+    initActionsConnections();
+
+    QtCharts::QLineSeries* series = new QtCharts::QLineSeries();
+    QtCharts::QChartView* chartView = new QtCharts::QChartView();
+    series->append(0, 6);
+    series->append(2, 4);
+    series->setName("Hello");
+    chartView->chart()->addSeries(series);
+    chartView->chart()->createDefaultAxes();
+
+    QVBoxLayout *groupBoxLayout = new QVBoxLayout();
+    groupBoxLayout->addWidget(chartView); // Создаём текст внутри GroupBox
+    delete ui->Channel1_groupBox->layout();
+    ui->Channel1_groupBox->setLayout(groupBoxLayout);
+
+    refOscilloSpacer = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->Oscillo_Channel_Area_verticalLayout->addItem(refOscilloSpacer);
+
+    QGroupBox_pointer[0] = ui->Channel1_groupBox; // Main oscillo GroupBox
 }
 
 void MainWindow::initActionsConnections()
@@ -54,7 +63,10 @@ void MainWindow::initActionsConnections()
 void MainWindow::ChangeGroupSize(int val)
 {
     for(int i=0; i < Last_Num_Channel; i++)
+    {
         QGroupBox_pointer[i]->setMinimumSize(0, val);
+        QGroupBox_pointer[i]->setFixedHeight(val);
+    }
 }
 
 void MainWindow::on_Group_Size_Slider_sliderMoved(int position)
@@ -87,12 +99,19 @@ void MainWindow::on_Counter_channel_Box_valueChanged(int arg1)
     if(Last_Num_Channel < arg1) // Количество каналов увеличилось
     {
         QGroupBox_pointer[Last_Num_Channel] = new QGroupBox("Channel " + QString::number(arg1)); // Создание GroupBox
-        QGroupBox_pointer[Last_Num_Channel]->setFixedHeight(100);
+        QGroupBox_pointer[Last_Num_Channel]->setFixedHeight(ui->Group_Size_Box->value());
         QGroupBox_pointer[Last_Num_Channel]->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed); // Настройка размера
 
-        QLabel *label = new QLabel("Label inside Group Box");
+        QtCharts::QLineSeries* series = new QtCharts::QLineSeries();
+        QtCharts::QChartView* chartView = new QtCharts::QChartView();
+        series->append(0, 6);
+        series->append(2, 4);
+        chartView->chart()->addSeries(series);
+        chartView->chart()->createDefaultAxes();
+
+        // QLabel *label = new QLabel("Label inside Group Box");
         QVBoxLayout *groupBoxLayout = new QVBoxLayout();
-        groupBoxLayout->addWidget(label); // Создаём текст внутри GroupBox
+        groupBoxLayout->addWidget(chartView); // Создаём текст внутри GroupBox
         QGroupBox_pointer[Last_Num_Channel]->setLayout(groupBoxLayout);
 
         ui->Oscillo_Channel_Area_verticalLayout->addWidget(QGroupBox_pointer[Last_Num_Channel]); // Добавляем GB

@@ -30,6 +30,7 @@ private:
     Ui::MainWindow *ui;
     void ChangeGroupSize(int val);
     void initActionsConnections(void);
+    void initSettings(void);
 
     SettingsDialog *SetDial = nullptr;
 };
