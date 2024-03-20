@@ -59,7 +59,7 @@ void SettingsDialog::LoadSettings()
     iniSettings.beginGroup("port_parametrs");
     m_currentSettings.name = iniSettings.value("PortName", "COM1").toString();
     m_currentSettings.stringBaudRate = iniSettings.value("Baudrate", "115200").toString();
-    m_currentSettings.stringDataBits = iniSettings.value("DataBits", "8").toInt();
+    m_currentSettings.stringDataBits = iniSettings.value("DataBits", "8").toString();
     m_currentSettings.stringParity = iniSettings.value("Parity", "None").toString();
     m_currentSettings.stringStopBits = iniSettings.value("StopBits", "1").toString();
     m_currentSettings.stringFlowControl = iniSettings.value("FlowControl", "None").toString();

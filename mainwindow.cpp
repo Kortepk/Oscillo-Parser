@@ -7,17 +7,18 @@
 #include <QChart>
 #include <QLineSeries>
 #include <QChartView>
+#include <QMessageBox>
 
 #include "settingsdialog.h"
 
-int Last_Num_Channel = 1;
 QSpacerItem *refOscilloSpacer;
-
 QGroupBox* QGroupBox_pointer[10]; // Массив указателей
+QSerialPort* MainPort = nullptr;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
     ui(new Ui::MainWindow),
+    m_settings(new SettingsDialog(this)),
     SetDial(new SettingsDialog(this))
 {
     ui->setupUi(this);
@@ -35,6 +36,8 @@ void MainWindow::initSettings()
 {
     //** init **//
     initActionsConnections();
+
+    MainPort = new QSerialPort(this);
 
     QtCharts::QLineSeries* series = new QtCharts::QLineSeries();
     QtCharts::QChartView* chartView = new QtCharts::QChartView();
@@ -59,8 +62,14 @@ void MainWindow::initSettings()
 void MainWindow::initActionsConnections()
 {
     connect(ui->PortSettings_action, &QAction::triggered, SetDial, &SettingsDialog::show);
+    connect(MainPort, &QSerialPort::readyRead, this, &MainWindow::readData);
 }
 
+void MainWindow::readData()
+{
+    const QByteArray data = MainPort->readAll();
+    qDebug() << data;
+}
 
 void MainWindow::ChangeGroupSize(int val)
 {
@@ -135,14 +144,40 @@ void MainWindow::on_Counter_channel_Box_valueChanged(int arg1)
 
 void MainWindow::on_Connect_action_triggered()
 {
-    const SettingsDialog::Settings settings = SetDial->settings();
+    if(!MainPort->isOpen())
+    {
+        const SettingsDialog::Settings p = m_settings->settings();
+        MainPort->setPortName(p.name);
+        MainPort->setBaudRate(p.baudRate);
+        MainPort->setDataBits(p.dataBits);
+        MainPort->setParity(p.parity);
+        MainPort->setStopBits(p.stopBits);
+        MainPort->setFlowControl(p.flowControl);
+        if (MainPort->open(QIODevice::ReadWrite)) {
+            qDebug() << (tr("Connected to %1 : %2, %3, %4, %5, %6")
+                                    .arg(p.name, p.stringBaudRate, p.stringDataBits,
+                                    p.stringParity, p.stringStopBits, p.stringFlowControl));
+        } else {
+            QMessageBox::critical(this, tr("Error"), MainPort->errorString());
+            return;
+        }
+        ui->Connect_action->setText("Disonnect");
+    }
+    else
+    {
+        MainPort->close();
+        ui->Connect_action->setText("Connect");
+    }
 
+#if 0
+    const SettingsDialog::Settings settings = SetDial->settings();
     qDebug() << "Name:" << settings.name;
     qDebug() << "Baud Rate:" << settings.baudRate << "(" << settings.stringBaudRate << ")";
     qDebug() << "Data Bits:" << settings.dataBits << "(" << settings.stringDataBits << ")";
     qDebug() << "Parity:" << settings.parity << "(" << settings.stringParity << ")";
     qDebug() << "Stop Bits:" << settings.stopBits << "(" << settings.stringStopBits << ")";
     qDebug() << "Flow Control:" << settings.flowControl << "(" << settings.stringFlowControl << ")";
+#endif
 }
 
 

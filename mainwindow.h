@@ -25,6 +25,7 @@ private slots:
     void on_Counter_channel_Box_valueChanged(int arg1);
     void on_Connect_action_triggered();
     void on_PortSettings_action_triggered();
+    void readData();
 
 private:
     Ui::MainWindow *ui;
@@ -33,5 +34,7 @@ private:
     void initSettings(void);
 
     SettingsDialog *SetDial = nullptr;
+    int Last_Num_Channel = 1;
+    SettingsDialog *m_settings = nullptr;
 };
 #endif // MAINWINDOW_H
