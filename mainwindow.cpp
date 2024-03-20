@@ -8,12 +8,17 @@
 #include <QLineSeries>
 #include <QChartView>
 #include <QMessageBox>
-
+#include <QElapsedTimer>
 #include "settingsdialog.h"
 
 QSpacerItem *refOscilloSpacer;
 QGroupBox* QGroupBox_pointer[10]; // Массив указателей
 QSerialPort* MainPort = nullptr;
+
+QByteArray RxBuffer;
+QtCharts::QLineSeries* MainSeries = nullptr;
+QtCharts::QChartView* chartView = nullptr;
+QElapsedTimer Maintimer;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -34,18 +39,18 @@ MainWindow::~MainWindow()
 
 void MainWindow::initSettings()
 {
-    //** init **//
-    initActionsConnections();
-
     MainPort = new QSerialPort(this);
 
-    QtCharts::QLineSeries* series = new QtCharts::QLineSeries();
-    QtCharts::QChartView* chartView = new QtCharts::QChartView();
-    series->append(0, 6);
-    series->append(2, 4);
-    series->setName("Hello");
-    chartView->chart()->addSeries(series);
-    chartView->chart()->createDefaultAxes();
+    Maintimer.start();
+
+    //** init **//
+    initActionsConnections();
+    MainSeries = new QtCharts::QLineSeries();
+    chartView = new QtCharts::QChartView();
+
+    MainSeries->setName("Hello");
+    chartView->chart()->addSeries(MainSeries);
+    //chartView->chart()->createDefaultAxes();
 
     QVBoxLayout *groupBoxLayout = new QVBoxLayout();
     groupBoxLayout->addWidget(chartView); // Создаём текст внутри GroupBox
@@ -67,8 +72,43 @@ void MainWindow::initActionsConnections()
 
 void MainWindow::readData()
 {
-    const QByteArray data = MainPort->readAll();
-    qDebug() << data;
+    RxBuffer += MainPort->readAll();
+
+    while((RxBuffer[0] != ';') && (RxBuffer.length() > 0)) // Условие синхронизации, относительно последнего числа и символа ;
+    {
+        RxBuffer.remove(0, 1);
+    }
+
+    int indexEOF = 0, indexSOF = 0;
+    QString str;
+    while(indexSOF < RxBuffer.length())
+    {
+        indexSOF = indexEOF;
+        indexEOF = RxBuffer.indexOf(';', indexEOF + 1); // Пропускаем [0] символ ';'
+        if (indexEOF != -1) {
+            if(indexEOF - indexSOF > 2) // [1] - номер канала; [2] - ')'
+            {
+                // TODO handler a specific channel
+                int NumberChannel = RxBuffer[indexSOF + 1] - '0';
+                str = "";
+                indexSOF += 3;
+                while(indexSOF < indexEOF)
+                    str += RxBuffer[indexSOF++];
+
+                if(NumberChannel == 1)
+                {
+                    //qDebug() << str;
+                    MainSeries->append(Maintimer.elapsed(), str.toFloat());
+                    chartView->chart()->removeSeries(MainSeries);
+                    chartView->chart()->createDefaultAxes();
+                    chartView->chart()->addSeries(MainSeries);
+                    //chartView->repaint();
+                }
+            }
+        }
+        else
+            break;
+    }
 }
 
 void MainWindow::ChangeGroupSize(int val)
@@ -135,7 +175,6 @@ void MainWindow::on_Counter_channel_Box_valueChanged(int arg1)
         //ui->Oscillo_Channel_Area_verticalLayout->removeWidget(QGroupBox_pointer[arg1]);
         delete QGroupBox_pointer[arg1];
         qDebug() << "Ok";
-        // TODO удалить лишние каналы
     }
     Last_Num_Channel = arg1;
 }
@@ -161,6 +200,7 @@ void MainWindow::on_Connect_action_triggered()
             QMessageBox::critical(this, tr("Error"), MainPort->errorString());
             return;
         }
+        MainPort->flush();
         ui->Connect_action->setText("Disonnect");
     }
     else
