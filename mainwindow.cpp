@@ -10,15 +10,21 @@
 #include <QMessageBox>
 #include <QElapsedTimer>
 #include "settingsdialog.h"
+#include <QTimer>
 
 QSpacerItem *refOscilloSpacer;
-QGroupBox* QGroupBox_pointer[10]; // Массив указателей
+QGroupBox* QGroupBox_pointer[10]; // Массив указателей на GroupBox
+QtCharts::QLineSeries* Series_pointer[10]; // Указатели на данные графика
+QtCharts::QChartView* ChartView_pointer[10]; // Массив графиков
+
+QList<QPointF> ListPoint[10]; // Теневая переменная для буфферизации
+
 QSerialPort* MainPort = nullptr;
 
 QByteArray RxBuffer;
-QtCharts::QLineSeries* MainSeries = nullptr;
-QtCharts::QChartView* chartView = nullptr;
+
 QElapsedTimer Maintimer;
+QPointF TempPoint;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -45,15 +51,19 @@ void MainWindow::initSettings()
 
     //** init **//
     initActionsConnections();
-    MainSeries = new QtCharts::QLineSeries();
-    chartView = new QtCharts::QChartView();
 
-    MainSeries->setName("Hello");
-    chartView->chart()->addSeries(MainSeries);
-    //chartView->chart()->createDefaultAxes();
+    Series_pointer[0] = new QtCharts::QLineSeries();
+    ChartView_pointer[0] = new QtCharts::QChartView();
+
+    Series_pointer[0]->append(0, -2);
+    Series_pointer[0]->append(10000, 2);
+
+    ChartView_pointer[0]->chart()->legend()->hide();
+    ChartView_pointer[0]->chart()->addSeries(Series_pointer[0]);
+    ChartView_pointer[0]->chart()->createDefaultAxes();
 
     QVBoxLayout *groupBoxLayout = new QVBoxLayout();
-    groupBoxLayout->addWidget(chartView); // Создаём текст внутри GroupBox
+    groupBoxLayout->addWidget(ChartView_pointer[0]); // Создаём текст внутри GroupBox
 
     delete ui->Channel1_groupBox->layout(); // Удаляем layout от дизайнера
     ui->Channel1_groupBox->setLayout(groupBoxLayout);
@@ -62,6 +72,31 @@ void MainWindow::initSettings()
     ui->Oscillo_Channel_Area_verticalLayout->addItem(refOscilloSpacer);
 
     QGroupBox_pointer[0] = ui->Channel1_groupBox; // Main oscillo GroupBox
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::UpdateGraph));
+    timer->start(100); // /75
+}
+
+void MainWindow::UpdateGraph(void)
+{
+    Series_pointer[0]->clear();
+    //*Series_pointer[0] << ListPoint[0];
+    Series_pointer[0]->replace(ListPoint[0]);
+
+    //qDebug() << Series_pointer[0] ->points().size();
+    return;
+    if(MainPort->isOpen())
+    {
+
+        float tm = TempPoint.y();
+        Series_pointer[0]->replace(0, TempPoint);
+
+        TempPoint = Series_pointer[0]->points().at(1);
+        TempPoint.setY(tm);
+
+        Series_pointer[0]->replace(1, TempPoint);
+    }
 }
 
 void MainWindow::initActionsConnections()
@@ -78,6 +113,7 @@ void MainWindow::readData()
     {
         RxBuffer.remove(0, 1);
     }
+    //qDebug() << MainPort->bytesAvailable();
 
     int indexEOF = 0, indexSOF = 0;
     QString str;
@@ -95,14 +131,30 @@ void MainWindow::readData()
                 while(indexSOF < indexEOF)
                     str += RxBuffer[indexSOF++];
 
+
                 if(NumberChannel == 1)
                 {
-                    //qDebug() << str;
-                    MainSeries->append(Maintimer.elapsed(), str.toFloat());
-                    chartView->chart()->removeSeries(MainSeries);
-                    chartView->chart()->createDefaultAxes();
-                    chartView->chart()->addSeries(MainSeries);
-                    //chartView->repaint();
+                    //Series_pointer[0]->append(Maintimer.elapsed(), str.toFloat());
+                    if(ListPoint[0].size() > ui->MaxPointSlider->value())
+                        ListPoint[0].clear();  // Maybe need Rewrite
+                    ListPoint[0] << QPointF(ListPoint[0].size(), str.toFloat());
+                    //qDebug() << ListPoint[0].size() << str.toFloat();
+#if 0
+                    TempPoint = Series_pointer[0]->points().at(0);
+                    TempPoint.setY(str.toFloat());  // Установка нового значения y для первой точки
+                    Series_pointer[0]->replace(0, TempPoint);
+#endif
+
+                }
+                if((NumberChannel == 3) && (Channel_Size > 1))
+                {
+                    //Series_pointer[1]->append(Maintimer.elapsed(), str.toFloat());
+                    //*Series_pointer[1] << QPointF(Maintimer.elapsed(), str.toFloat());
+#if 0
+                    TempPoint = Series_pointer[1]->points().at(0);
+                    TempPoint.setY(str.toFloat());  // Установка нового значения y для первой точки
+                    Series_pointer[1]->replace(0, TempPoint);
+#endif
                 }
             }
         }
@@ -113,7 +165,7 @@ void MainWindow::readData()
 
 void MainWindow::ChangeGroupSize(int val)
 {
-    for(int i=0; i < Last_Num_Channel; i++)
+    for(int i=0; i < Channel_Size; i++)
     {
         QGroupBox_pointer[i]->setMinimumSize(0, val);
         QGroupBox_pointer[i]->setFixedHeight(val);
@@ -147,25 +199,28 @@ void MainWindow::on_Group_Size_Box_valueChanged(int arg1)
 
 void MainWindow::on_Counter_channel_Box_valueChanged(int arg1)
 {
-    if(Last_Num_Channel < arg1) // Количество каналов увеличилось
+    if(Channel_Size < arg1) // Количество каналов увеличилось
     {
-        QGroupBox_pointer[Last_Num_Channel] = new QGroupBox("Channel " + QString::number(arg1)); // Создание GroupBox
-        QGroupBox_pointer[Last_Num_Channel]->setFixedHeight(ui->Group_Size_Box->value());
-        QGroupBox_pointer[Last_Num_Channel]->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed); // Настройка размера
+        const int chn = Channel_Size;
+        QGroupBox_pointer[chn] = new QGroupBox("Channel " + QString::number(arg1)); // Создание GroupBox
+        QGroupBox_pointer[chn]->setFixedHeight(ui->Group_Size_Box->value());
+        QGroupBox_pointer[chn]->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed); // Настройка размера
 
-        QtCharts::QLineSeries* series = new QtCharts::QLineSeries();
-        QtCharts::QChartView* chartView = new QtCharts::QChartView();
-        series->append(0, 6);
-        series->append(2, 4);
-        chartView->chart()->addSeries(series);
-        chartView->chart()->createDefaultAxes();
+        Series_pointer[chn] = new QtCharts::QLineSeries();  // Create object and get this pointter
+        ChartView_pointer[chn] = new QtCharts::QChartView();
+
+        Series_pointer[chn]->append(0, -2);
+        Series_pointer[chn]->append(2, 2);
+        ChartView_pointer[chn]->chart()->addSeries(Series_pointer[chn]);
+        ChartView_pointer[chn]->chart()->createDefaultAxes();
+        ChartView_pointer[chn]->chart()->legend()->hide();
 
         // QLabel *label = new QLabel("Label inside Group Box");
         QVBoxLayout *groupBoxLayout = new QVBoxLayout();
-        groupBoxLayout->addWidget(chartView); // Создаём текст внутри GroupBox
-        QGroupBox_pointer[Last_Num_Channel]->setLayout(groupBoxLayout);
+        groupBoxLayout->addWidget(ChartView_pointer[chn]); // Создаём текст внутри GroupBox
+        QGroupBox_pointer[chn]->setLayout(groupBoxLayout);
 
-        ui->Oscillo_Channel_Area_verticalLayout->addWidget(QGroupBox_pointer[Last_Num_Channel]); // Добавляем GB
+        ui->Oscillo_Channel_Area_verticalLayout->addWidget(QGroupBox_pointer[chn]); // Добавляем GB
 
         ui->Oscillo_Channel_Area_verticalLayout->removeItem(refOscilloSpacer);
         ui->Oscillo_Channel_Area_verticalLayout->addItem(refOscilloSpacer);
@@ -174,9 +229,11 @@ void MainWindow::on_Counter_channel_Box_valueChanged(int arg1)
     {
         //ui->Oscillo_Channel_Area_verticalLayout->removeWidget(QGroupBox_pointer[arg1]);
         delete QGroupBox_pointer[arg1];
+        delete Series_pointer[arg1];
+        delete ChartView_pointer[arg1];
         qDebug() << "Ok";
     }
-    Last_Num_Channel = arg1;
+    Channel_Size = arg1;
 }
 
 
@@ -224,5 +281,11 @@ void MainWindow::on_Connect_action_triggered()
 void MainWindow::on_PortSettings_action_triggered()
 {
     SetDial->LoadSettings();
+}
+
+
+void MainWindow::on_MaxPointSlider_sliderMoved(int position)
+{
+    qDebug() << position;
 }
 

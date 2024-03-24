@@ -27,14 +27,17 @@ private slots:
     void on_PortSettings_action_triggered();
     void readData();
 
+    void on_MaxPointSlider_sliderMoved(int position);
+
 private:
     Ui::MainWindow *ui;
     void ChangeGroupSize(int val);
     void initActionsConnections(void);
+    void UpdateGraph(void);
     void initSettings(void);
 
     SettingsDialog *SetDial = nullptr;
-    int Last_Num_Channel = 1;
+    int Channel_Size = 1;
     SettingsDialog *m_settings = nullptr;
 };
 #endif // MAINWINDOW_H
