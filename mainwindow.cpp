@@ -26,6 +26,8 @@ QByteArray RxBuffer;
 QElapsedTimer Maintimer;
 QPointF TempPoint;
 
+int fillingIndex = 0;// Заполняемый индекс
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -75,27 +77,16 @@ void MainWindow::initSettings()
 
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::UpdateGraph));
-    timer->start(100); // /75
+    timer->start(1000/75); // /75
 }
 
 void MainWindow::UpdateGraph(void)
 {
-    Series_pointer[0]->clear();
-    //*Series_pointer[0] << ListPoint[0];
-    Series_pointer[0]->replace(ListPoint[0]);
 
-    //qDebug() << Series_pointer[0] ->points().size();
-    return;
     if(MainPort->isOpen())
     {
-
-        float tm = TempPoint.y();
-        Series_pointer[0]->replace(0, TempPoint);
-
-        TempPoint = Series_pointer[0]->points().at(1);
-        TempPoint.setY(tm);
-
-        Series_pointer[0]->replace(1, TempPoint);
+        for(int i = 0; i < Channel_Size; i++)
+            Series_pointer[i]->replace(ListPoint[i]);
     }
 }
 
@@ -113,7 +104,7 @@ void MainWindow::readData()
     {
         RxBuffer.remove(0, 1);
     }
-    //qDebug() << MainPort->bytesAvailable();
+    //qDebug() << RxBuffer.size();
 
     int indexEOF = 0, indexSOF = 0;
     QString str;
@@ -134,10 +125,21 @@ void MainWindow::readData()
 
                 if(NumberChannel == 1)
                 {
+                    //if((str.toFloat() > 1) or (str.toFloat() < -1))
+                    //    qDebug() << str.toFloat();
                     //Series_pointer[0]->append(Maintimer.elapsed(), str.toFloat());
-                    if(ListPoint[0].size() > ui->MaxPointSlider->value())
-                        ListPoint[0].clear();  // Maybe need Rewrite
-                    ListPoint[0] << QPointF(ListPoint[0].size(), str.toFloat());
+                    if(ListPoint[0].size() <= ui->MaxPointSlider->value())
+                        ListPoint[0] << QPointF(ListPoint[0].size(), str.toFloat()); //
+                    else
+                    {
+                        TempPoint = ListPoint[0].at(fillingIndex);
+                        TempPoint.setY(str.toFloat());
+                        ListPoint[0].replace(fillingIndex, TempPoint);
+
+                        fillingIndex ++;
+                        if(fillingIndex >= ListPoint[0].size())
+                            fillingIndex = 0;
+                    }
                     //qDebug() << ListPoint[0].size() << str.toFloat();
 #if 0
                     TempPoint = Series_pointer[0]->points().at(0);
@@ -148,8 +150,9 @@ void MainWindow::readData()
                 }
                 if((NumberChannel == 3) && (Channel_Size > 1))
                 {
-                    //Series_pointer[1]->append(Maintimer.elapsed(), str.toFloat());
-                    //*Series_pointer[1] << QPointF(Maintimer.elapsed(), str.toFloat());
+                    if(ListPoint[1].size() <= ui->MaxPointSlider->value())
+                        ListPoint[1] << QPointF(ListPoint[1].size(), str.toFloat()); //
+
 #if 0
                     TempPoint = Series_pointer[1]->points().at(0);
                     TempPoint.setY(str.toFloat());  // Установка нового значения y для первой точки
@@ -157,6 +160,7 @@ void MainWindow::readData()
 #endif
                 }
             }
+            RxBuffer.remove(0, indexEOF);
         }
         else
             break;
@@ -210,7 +214,7 @@ void MainWindow::on_Counter_channel_Box_valueChanged(int arg1)
         ChartView_pointer[chn] = new QtCharts::QChartView();
 
         Series_pointer[chn]->append(0, -2);
-        Series_pointer[chn]->append(2, 2);
+        Series_pointer[chn]->append(10000, 2);
         ChartView_pointer[chn]->chart()->addSeries(Series_pointer[chn]);
         ChartView_pointer[chn]->chart()->createDefaultAxes();
         ChartView_pointer[chn]->chart()->legend()->hide();
@@ -286,6 +290,15 @@ void MainWindow::on_PortSettings_action_triggered()
 
 void MainWindow::on_MaxPointSlider_sliderMoved(int position)
 {
-    qDebug() << position;
+    //qDebug() << position;
+}
+
+
+void MainWindow::on_pushButton_clicked()
+{
+    for(int i=0; i < ListPoint[0].size(); i++)
+    {
+        qDebug() << ListPoint[0].at(i).x() << ListPoint[0].at(i).y();
+    }
 }
 

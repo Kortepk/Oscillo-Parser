@@ -29,6 +29,8 @@ private slots:
 
     void on_MaxPointSlider_sliderMoved(int position);
 
+    void on_pushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     void ChangeGroupSize(int val);
