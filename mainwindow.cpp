@@ -12,6 +12,8 @@
 #include "settingsdialog.h"
 #include <QTimer>
 
+#define byte5 0
+
 QSpacerItem *refOscilloSpacer;
 QGroupBox* QGroupBox_pointer[10]; // Массив указателей на GroupBox
 QtCharts::QLineSeries* Series_pointer[10]; // Указатели на данные графика
@@ -27,6 +29,8 @@ QElapsedTimer Maintimer;
 QPointF TempPoint;
 
 int fillingIndex = 0;// Заполняемый индекс
+
+auto start_time = std::chrono::high_resolution_clock::now();
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -58,7 +62,7 @@ void MainWindow::initSettings()
     ChartView_pointer[0] = new QtCharts::QChartView();
 
     Series_pointer[0]->append(0, -2);
-    Series_pointer[0]->append(10000, 2);
+    Series_pointer[0]->append(1000, 2);
 
     ChartView_pointer[0]->chart()->legend()->hide();
     ChartView_pointer[0]->chart()->addSeries(Series_pointer[0]);
@@ -86,7 +90,9 @@ void MainWindow::UpdateGraph(void)
     if(MainPort->isOpen())
     {
         for(int i = 0; i < Channel_Size; i++)
+        {
             Series_pointer[i]->replace(ListPoint[i]);
+        }
     }
 }
 
@@ -104,7 +110,6 @@ void MainWindow::readData()
     {
         RxBuffer.remove(0, 1);
     }
-    //qDebug() << RxBuffer.size();
 
     int indexEOF = 0, indexSOF = 0;
     QString str;
@@ -140,7 +145,7 @@ void MainWindow::readData()
                         if(fillingIndex >= ListPoint[0].size())
                             fillingIndex = 0;
                     }
-                    //qDebug() << ListPoint[0].size() << str.toFloat();
+                    qDebug() << fillingIndex << str.toFloat();
 #if 0
                     TempPoint = Series_pointer[0]->points().at(0);
                     TempPoint.setY(str.toFloat());  // Установка нового значения y для первой точки
@@ -152,7 +157,12 @@ void MainWindow::readData()
                 {
                     if(ListPoint[1].size() <= ui->MaxPointSlider->value())
                         ListPoint[1] << QPointF(ListPoint[1].size(), str.toFloat()); //
-
+                    else
+                    {
+                        TempPoint = ListPoint[1].at(fillingIndex);
+                        TempPoint.setY(str.toFloat());
+                        ListPoint[1].replace(fillingIndex, TempPoint);
+                    }
 #if 0
                     TempPoint = Series_pointer[1]->points().at(0);
                     TempPoint.setY(str.toFloat());  // Установка нового значения y для первой точки
@@ -164,6 +174,18 @@ void MainWindow::readData()
         }
         else
             break;
+
+#if byte5
+        if(ListPoint[0].size() <= ui->MaxPointSlider->value())
+            ListPoint[0] << QPointF(ListPoint[0].size(), RxBuffer[indexSOF]); //
+        else
+        {
+            TempPoint = ListPoint[0].at(fillingIndex);
+            TempPoint.setY(RxBuffer[indexSOF]);
+            ListPoint[0].replace(fillingIndex, TempPoint);
+        }
+        indexSOF ++;
+#endif
     }
 }
 
@@ -214,7 +236,7 @@ void MainWindow::on_Counter_channel_Box_valueChanged(int arg1)
         ChartView_pointer[chn] = new QtCharts::QChartView();
 
         Series_pointer[chn]->append(0, -2);
-        Series_pointer[chn]->append(10000, 2);
+        Series_pointer[chn]->append(1000, 2);
         ChartView_pointer[chn]->chart()->addSeries(Series_pointer[chn]);
         ChartView_pointer[chn]->chart()->createDefaultAxes();
         ChartView_pointer[chn]->chart()->legend()->hide();
