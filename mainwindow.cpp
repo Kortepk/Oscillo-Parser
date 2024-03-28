@@ -11,7 +11,7 @@
 #include <QElapsedTimer>
 #include "settingsdialog.h"
 #include <QTimer>
-#include "form.h"
+#include "ControlPanel.h"
 
 #define byte5 0
 
@@ -324,5 +324,23 @@ void MainWindow::on_pushButton_clicked()
     {
         qDebug() << ListPoint[0].at(i).x() << ListPoint[0].at(i).y();
     }
+}
+
+
+void MainWindow::on_pushButtonTest_clicked()
+{
+    QDialog dialog;
+    dialog.setWindowTitle("New Window");
+
+    QVBoxLayout layout(&dialog);
+    layout.setContentsMargins(0, 0, 0, 0); // Установка нулевых отступов
+
+    // Добавление виджета в макет окна
+    ControlPanel frm;
+    layout.addWidget(&frm);
+
+    //dialog.show();
+    // Отображение нового окна
+    dialog.exec();
 }
 
