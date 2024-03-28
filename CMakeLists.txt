@@ -43,11 +43,7 @@ else()
         add_executable(Oscillo-Parser
             ${PROJECT_SOURCES}
             settingsdialog.h settingsdialog.cpp settingsdialog.ui
-
-
-
-
-
+            controlpanel.h controlpanel.cpp controlpanel.ui
         )
     endif()
 endif()

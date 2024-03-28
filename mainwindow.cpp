@@ -11,6 +11,7 @@
 #include <QElapsedTimer>
 #include "settingsdialog.h"
 #include <QTimer>
+#include "form.h"
 
 #define byte5 0
 
@@ -313,6 +314,7 @@ void MainWindow::on_PortSettings_action_triggered()
 void MainWindow::on_MaxPointSlider_sliderMoved(int position)
 {
     //qDebug() << position;
+
 }
 
 
