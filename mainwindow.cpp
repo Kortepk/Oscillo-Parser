@@ -12,6 +12,8 @@
 #include "settingsdialog.h"
 #include <QTimer>
 #include "ControlPanel.h"
+#include <QCloseEvent>
+
 
 #define byte5 0
 
@@ -37,7 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_settings(new SettingsDialog(this)),
-    SetDial(new SettingsDialog(this))
+    SetDial(new SettingsDialog(this)),
+    ControlPnl()
 {
     ui->setupUi(this);
 
@@ -53,6 +56,10 @@ MainWindow::~MainWindow()
 void MainWindow::initSettings()
 {
     MainPort = new QSerialPort(this);
+    ControlPnl = new ControlPanel();
+
+    ControlPnlDialog = new QDialog();
+    ControlPnlDialog->setWindowTitle("Control panel");
 
     Maintimer.start();
 
@@ -80,6 +87,15 @@ void MainWindow::initSettings()
 
     QGroupBox_pointer[0] = ui->Channel1_groupBox; // Main oscillo GroupBox
 
+
+    //ui->OscilloPanel_Layout->setContentsMargins(0, 0, 0, 0); // Установка нулевых отступов
+    // Добавление виджета в макет окна
+    ui->OscilloPanel_Layout->addWidget(ControlPnl);
+
+
+    //dialog.show();
+    // Отображение нового окна
+
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::UpdateGraph));
     timer->start(1000/75); // /75
@@ -101,6 +117,35 @@ void MainWindow::initActionsConnections()
 {
     connect(ui->PortSettings_action, &QAction::triggered, SetDial, &SettingsDialog::show);
     connect(MainPort, &QSerialPort::readyRead, this, &MainWindow::readData);
+    connect(ControlPnl, &ControlPanel::TurnFlowMode_Signal, this, &MainWindow::ChangeFlowWindowMode);
+    connect(ControlPnl, &ControlPanel::GroupSize_Signal, this, &MainWindow::ChangeGroupSize);
+    connect(ControlPnl, &ControlPanel::CounterChannel_Signal, this, &MainWindow::CounterChannel_Changed);
+    connect(ControlPnlDialog, &QDialog::finished, this, &MainWindow::CloseFlowPanel);
+}
+
+void MainWindow::CloseFlowPanel()
+{
+    //qDebug() << __PRETTY_FUNCTION__ ;
+    ControlPnl->Change_TurnFlowMode(false);
+}
+
+void MainWindow::ChangeFlowWindowMode(bool TriggerStatus)
+{
+    if(TriggerStatus)
+    {
+        ui->OscilloPanel_Layout->removeWidget(ControlPnl);
+
+        QVBoxLayout layout(ControlPnlDialog);
+        layout.setContentsMargins(0, 0, 0, 0); // Установка нулевых отступов
+        layout.addWidget(ControlPnl);  // Добавление виджета в макет окна
+
+        ControlPnlDialog->show();
+    }
+    else
+    {
+        ControlPnlDialog->hide();
+        ui->OscilloPanel_Layout->addWidget(ControlPnl);
+    }
 }
 
 void MainWindow::readData()
@@ -114,6 +159,8 @@ void MainWindow::readData()
 
     int indexEOF = 0, indexSOF = 0;
     QString str;
+    const int MaxPoint = ControlPnl->Get_MaxPointSlider();
+
     while(indexSOF < RxBuffer.length())
     {
         indexSOF = indexEOF;
@@ -128,13 +175,9 @@ void MainWindow::readData()
                 while(indexSOF < indexEOF)
                     str += RxBuffer[indexSOF++];
 
-
                 if(NumberChannel == 1)
                 {
-                    //if((str.toFloat() > 1) or (str.toFloat() < -1))
-                    //    qDebug() << str.toFloat();
-                    //Series_pointer[0]->append(Maintimer.elapsed(), str.toFloat());
-                    if(ListPoint[0].size() <= ui->MaxPointSlider->value())
+                    if(ListPoint[0].size() <= MaxPoint)
                         ListPoint[0] << QPointF(ListPoint[0].size(), str.toFloat()); //
                     else
                     {
@@ -156,7 +199,7 @@ void MainWindow::readData()
                 }
                 if((NumberChannel == 3) && (Channel_Size > 1))
                 {
-                    if(ListPoint[1].size() <= ui->MaxPointSlider->value())
+                    if(ListPoint[1].size() <= MaxPoint)
                         ListPoint[1] << QPointF(ListPoint[1].size(), str.toFloat()); //
                     else
                     {
@@ -199,38 +242,15 @@ void MainWindow::ChangeGroupSize(int val)
     }
 }
 
-void MainWindow::on_Group_Size_Slider_sliderMoved(int position)
+void MainWindow::CounterChannel_Changed(int arg1)
 {
-    qDebug() << position<< "\n";
+    qDebug() << __PRETTY_FUNCTION__ << arg1;
 
-    ui->Group_Size_Box->setValue(position);
-
-    //ui->Channel1_groupBox->setMinimumSize(0, position);]
-    ChangeGroupSize(position);
-}
-
-
-
-void MainWindow::on_Group_Size_Box_valueChanged(int arg1)
-{
-    if(arg1 <= 1000)
-        ui->Group_Size_Slider->setValue(arg1);
-    else
-        if(ui->Group_Size_Slider->value() != 1000)
-            ui->Group_Size_Slider->setValue(1000);
-
-    ChangeGroupSize(arg1);
-}
-
-
-
-void MainWindow::on_Counter_channel_Box_valueChanged(int arg1)
-{
     if(Channel_Size < arg1) // Количество каналов увеличилось
     {
         const int chn = Channel_Size;
         QGroupBox_pointer[chn] = new QGroupBox("Channel " + QString::number(arg1)); // Создание GroupBox
-        QGroupBox_pointer[chn]->setFixedHeight(ui->Group_Size_Box->value());
+        QGroupBox_pointer[chn]->setFixedHeight( ControlPnl->Get_GroupSizeValue() );
         QGroupBox_pointer[chn]->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed); // Настройка размера
 
         Series_pointer[chn] = new QtCharts::QLineSeries();  // Create object and get this pointter
@@ -255,10 +275,10 @@ void MainWindow::on_Counter_channel_Box_valueChanged(int arg1)
     else
     {
         //ui->Oscillo_Channel_Area_verticalLayout->removeWidget(QGroupBox_pointer[arg1]);
+
         delete QGroupBox_pointer[arg1];
-        delete Series_pointer[arg1];
-        delete ChartView_pointer[arg1];
-        qDebug() << "Ok";
+        // delete Series_pointer[arg1];
+        // delete ChartView_pointer[arg1];
     }
     Channel_Size = arg1;
 }
@@ -313,7 +333,7 @@ void MainWindow::on_PortSettings_action_triggered()
 
 void MainWindow::on_MaxPointSlider_sliderMoved(int position)
 {
-    //qDebug() << position;
+    ;//qDebug() << position;
 
 }
 
