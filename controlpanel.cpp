@@ -15,6 +15,13 @@ ControlPanel::ControlPanel(QWidget *parent)
         strlst.append("Channel " + QString::number(i));
 
     ui->ChannelSelection_comboBox->addItems(strlst);
+
+    QTreeWidgetItem *itm = new QTreeWidgetItem(ui->treeWidget);
+    QTreeWidgetItem *itm2 = new QTreeWidgetItem(itm);
+    itm->setText(0, "Hello");
+    //ui->treeWidget->addTopLevelItem(itm);
+    itm2->setText(0, "World");
+    ui->treeWidget->addTopLevelItem(itm2);
 }
 
 ControlPanel::~ControlPanel()

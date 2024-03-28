@@ -364,3 +364,10 @@ void MainWindow::on_pushButtonTest_clicked()
     dialog.exec();
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if(SetDial != nullptr)
+        delete SetDial;
+    if(ControlPnlDialog != nullptr)
+        delete ControlPnlDialog;
+}

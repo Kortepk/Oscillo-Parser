@@ -41,11 +41,14 @@ private:
     void UpdateGraph(void);
     void initSettings(void);
     void CloseFlowPanel(void);
+    void closeEvent(QCloseEvent *event);
 
     SettingsDialog *SetDial = nullptr;
-    int Channel_Size = 1;
     SettingsDialog *m_settings = nullptr;
     ControlPanel *ControlPnl = nullptr;
     QDialog *ControlPnlDialog = nullptr;
+
+    int Channel_Size = 1;
+
 };
 #endif // MAINWINDOW_H
