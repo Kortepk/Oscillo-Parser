@@ -1,7 +1,12 @@
 #include "controlpanel.h"
+#include "qelapsedtimer.h"
 #include "ui_controlpanel.h"
 #include <QDebug>
+#include <QTimer>
+
 bool TurnFlowMode_Flag = false;
+
+QElapsedTimer TimerKnobClick;
 
 ControlPanel::ControlPanel(QWidget *parent)
     : QWidget(parent)
@@ -33,14 +38,30 @@ ControlPanel::ControlPanel(QWidget *parent)
     QTreeWidgetItem *itm = new QTreeWidgetItem(ui->treeWidget);
     QTreeWidgetItem *itm2 = new QTreeWidgetItem(itm);
     itm->setText(0, "Hello");
-    //ui->treeWidget->addTopLevelItem(itm);
+
     itm2->setText(0, "World");
     ui->treeWidget->addTopLevelItem(itm2);
+
+    connect(UItimer, &QTimer::timeout, this, QOverload<>::of(&ControlPanel::CheckUI));
 }
 
 ControlPanel::~ControlPanel()
 {
     delete ui;
+}
+
+void ControlPanel::CheckUI() // Использую, что бы при двойном клике на крутилку её заблокировать
+{
+    if(KnobBlockFlag)
+    {
+        ui->ChannalPosition_dial->setEnabled(true);
+        ui->GraphPosition_dial->setEnabled(true);
+        ui->ChannalScale_dial->setEnabled(true);
+        ui->GraphScale_dial->setEnabled(true);
+
+        UItimer->stop();
+        KnobBlockFlag = false;
+    }
 }
 
 void ControlPanel::CheckTurnFlowMode()
@@ -187,5 +208,70 @@ void ControlPanel::on_StartPause_Button_clicked()
             "QPushButton{border-radius: 4px;background-color: rgb(255, 156, 156);}"
             );
     }
+}
+
+/* SLIDERS_PRESSED() */
+
+void ControlPanel::on_ChannalPosition_dial_sliderPressed()
+{
+    if(TimerKnobClick.elapsed() < 300)
+    {
+        ui->ChannalPosition_dial->setValue(500);
+        ui->ChannalPosition_dial->setEnabled(false);
+        KnobBlockFlag = true;
+        UItimer->start(100);
+    }
+    TimerKnobClick.restart();
+}
+
+
+void ControlPanel::on_GraphPosition_dial_sliderPressed()
+{
+    if(TimerKnobClick.elapsed() < 300)
+    {
+        ui->GraphPosition_dial->setValue(500);
+        ui->GraphPosition_dial->setEnabled(false);
+        KnobBlockFlag = true;
+        UItimer->start(100);
+    }
+    TimerKnobClick.restart();
+}
+
+
+void ControlPanel::on_ChannalScale_dial_sliderPressed()
+{
+    if(TimerKnobClick.elapsed() < 300)
+    {
+        ui->ChannalScale_dial->setValue(1);
+        ui->ChannalScale_dial->setEnabled(false);
+        KnobBlockFlag = true;
+        UItimer->start(100);
+    }
+    TimerKnobClick.restart();
+}
+
+
+void ControlPanel::on_GraphScale_dial_sliderPressed()
+{
+    if(TimerKnobClick.elapsed() < 300)
+    {
+        ui->GraphScale_dial->setValue(1);
+        ui->GraphScale_dial->setEnabled(false);
+        KnobBlockFlag = true;
+        UItimer->start(100);
+    }
+    TimerKnobClick.restart();
+}
+
+
+void ControlPanel::on_ChannelScale_Box_valueChanged(int arg1)
+{
+    ui->ChannalScale_dial->setValue(arg1);
+}
+
+
+void ControlPanel::on_GraphScale_Box_valueChanged(int arg1)
+{
+    ui->GraphScale_dial->setValue(arg1);
 }
 

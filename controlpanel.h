@@ -1,6 +1,7 @@
 #ifndef CONTROLPANEL_H
 #define CONTROLPANEL_H
 
+#include "qtimer.h"
 #include <QWidget>
 
 namespace Ui {
@@ -37,11 +38,27 @@ private slots:
     void on_ChannalScale_dial_valueChanged(int value);
     void on_StartPause_Button_clicked();
 
+    void on_ChannalPosition_dial_sliderPressed();
+
+    void on_GraphPosition_dial_sliderPressed();
+
+    void on_ChannalScale_dial_sliderPressed();
+
+    void on_GraphScale_dial_sliderPressed();
+
+    void on_ChannelScale_Box_valueChanged(int arg1);
+
+    void on_GraphScale_Box_valueChanged(int arg1);
+
 private:
     Ui::ControlPanel *ui;
+    QTimer *UItimer = new QTimer(this);
+
     void CheckTurnFlowMode();
+    void CheckUI();
 
     int ChannalSize = 1;
+    bool KnobBlockFlag = false;
 };
 
 #endif // CONTROLPANEL_H

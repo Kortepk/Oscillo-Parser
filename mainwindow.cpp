@@ -190,7 +190,7 @@ void MainWindow::ChangeGraph(int channel, float shift_x, float shift_y, float sc
 
     shift_y = (shift_y - 500)/100;
 
-    qDebug() << channel << ControlPnl->ShiftMid_x << shift_y << scale_x << scale_y;
+    //qDebug() << channel << ControlPnl->ShiftMid_x << shift_y << scale_x << scale_y;
 
     float min_x = ControlPnl->ShiftMid_x - scale_x/2,
           min_y = shift_y - scale_y/2,
