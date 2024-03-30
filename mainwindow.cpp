@@ -13,7 +13,7 @@
 #include <QTimer>
 #include "ControlPanel.h"
 #include <QCloseEvent>
-
+#include <QValueAxis>
 
 #define byte5 0
 
@@ -120,7 +120,60 @@ void MainWindow::initActionsConnections()
     connect(ControlPnl, &ControlPanel::TurnFlowMode_Signal, this, &MainWindow::ChangeFlowWindowMode);
     connect(ControlPnl, &ControlPanel::GroupSize_Signal, this, &MainWindow::ChangeGroupSize);
     connect(ControlPnl, &ControlPanel::CounterChannel_Signal, this, &MainWindow::CounterChannel_Changed);
+    connect(ControlPnl, &ControlPanel::ChannelChange_Signal, this, &MainWindow::ChangeGraph);
+
     connect(ControlPnlDialog, &QDialog::finished, this, &MainWindow::CloseFlowPanel);
+}
+
+void MainWindow::ConcreteChangeGraph(int *channel, float *min_x, float *min_y, float *max_x, float *max_y)
+{
+    QtCharts::QChart *chart = ChartView_pointer[*channel]->chart();
+
+    // Удаление предыдущей оси X и отдельно Y
+    QtCharts::QAbstractAxis *oldAxisX = chart->axes(Qt::Horizontal).at(0); // Получаем первую ось X
+    chart->removeAxis(oldAxisX); // Удаляем ось X из графика
+    delete oldAxisX; // Освобождаем память, выделенную для предыдущей оси X
+
+    QtCharts::QAbstractAxis *oldAxisY = chart->axes(Qt::Vertical).at(0); // Получаем первую ось Y
+    chart->removeAxis(oldAxisY); // Удаляем ось Y из графика
+    delete oldAxisY; // Освобождаем память, выделенную для предыдущей оси Y
+
+    // Создаем ось X и Y с заданными границами
+    QtCharts::QValueAxis *axisX = new QtCharts::QValueAxis();
+    axisX->setRange(*min_x, *max_x);
+    chart->addAxis(axisX, Qt::AlignBottom);
+
+    QtCharts::QValueAxis *axisY = new QtCharts::QValueAxis();
+    axisY->setRange(*min_y, *max_y);
+    chart->addAxis(axisY, Qt::AlignLeft);
+
+    // Устанавливаем ось X и ось Y для каждого QLineSeries (привязываем точки к изменённой оси)
+    Series_pointer[*channel]->attachAxis(axisX);
+    Series_pointer[*channel]->attachAxis(axisY);
+
+    qDebug() << QString::number(*channel) + ")" << *min_x << *min_y << *max_x << *max_y;
+
+}
+
+void MainWindow::ChangeGraph(int channel, float shift_x, float shift_y, float scale_x, float scale_y)
+{
+    qDebug() << shift_x << shift_y << scale_x << scale_y;
+    float min_x = shift_x - scale_x/2, min_y = shift_y - scale_y/2, max_x = shift_x + scale_x/2, max_y = shift_y + scale_y/2;
+    if(channel >= 0) // Если дан конкретный канал
+    {
+        ConcreteChangeGraph(&channel, &min_x, &min_y, &max_x, &max_y);
+    }
+    else
+        for(int i = 0; i < Channel_Size; i ++)
+        {
+            QtCharts::QAbstractAxis *oldAxisY = ChartView_pointer[i]->chart()->axes(Qt::Vertical).at(0);
+
+            QtCharts::QValueAxis  * axisY = static_cast<QtCharts::QValueAxis * >(oldAxisY);
+            min_y = axisY->min();
+            max_y = axisY->max();
+
+            ConcreteChangeGraph(&i, &min_x, &min_y, &max_x, &max_y);
+        }
 }
 
 void MainWindow::CloseFlowPanel()
@@ -189,12 +242,7 @@ void MainWindow::readData()
                         if(fillingIndex >= ListPoint[0].size())
                             fillingIndex = 0;
                     }
-                    qDebug() << fillingIndex << str.toFloat();
-#if 0
-                    TempPoint = Series_pointer[0]->points().at(0);
-                    TempPoint.setY(str.toFloat());  // Установка нового значения y для первой точки
-                    Series_pointer[0]->replace(0, TempPoint);
-#endif
+                    //qDebug() << fillingIndex << str.toFloat();
 
                 }
                 if((NumberChannel == 3) && (Channel_Size > 1))
@@ -207,11 +255,6 @@ void MainWindow::readData()
                         TempPoint.setY(str.toFloat());
                         ListPoint[1].replace(fillingIndex, TempPoint);
                     }
-#if 0
-                    TempPoint = Series_pointer[1]->points().at(0);
-                    TempPoint.setY(str.toFloat());  // Установка нового значения y для первой точки
-                    Series_pointer[1]->replace(0, TempPoint);
-#endif
                 }
             }
             RxBuffer.remove(0, indexEOF);

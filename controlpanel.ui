@@ -88,7 +88,7 @@ background-color: rgb(255, 156, 156);
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -152,17 +152,27 @@ background-color: rgb(255, 156, 156);
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_7">
           <item>
-           <widget class="QDial" name="dial"/>
+           <widget class="QDial" name="ChannalPosition_dial">
+            <property name="wrapping">
+             <bool>true</bool>
+            </property>
+            <property name="notchTarget">
+             <double>13.000000000000000</double>
+            </property>
+            <property name="notchesVisible">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_7">
+           <widget class="QLabel" name="label_8">
             <property name="font">
              <font>
               <pointsize>20</pointsize>
              </font>
             </property>
             <property name="text">
-             <string>↓</string>
+             <string>↕</string>
             </property>
            </widget>
           </item>
@@ -178,17 +188,27 @@ background-color: rgb(255, 156, 156);
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_8">
           <item>
-           <widget class="QDial" name="dial_2"/>
+           <widget class="QDial" name="ChannalScale_dial">
+            <property name="wrapping">
+             <bool>true</bool>
+            </property>
+            <property name="notchTarget">
+             <double>13.000000000000000</double>
+            </property>
+            <property name="notchesVisible">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_8">
+           <widget class="QLabel" name="label_7">
             <property name="font">
              <font>
               <pointsize>20</pointsize>
              </font>
             </property>
             <property name="text">
-             <string>↕</string>
+             <string>∆</string>
             </property>
            </widget>
           </item>
@@ -234,7 +254,17 @@ background-color: rgb(255, 156, 156);
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_9">
           <item>
-           <widget class="QDial" name="dial_4"/>
+           <widget class="QDial" name="GraphPosition_dial">
+            <property name="wrapping">
+             <bool>true</bool>
+            </property>
+            <property name="notchTarget">
+             <double>13.000000000000000</double>
+            </property>
+            <property name="notchesVisible">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_11">
@@ -244,7 +274,7 @@ background-color: rgb(255, 156, 156);
              </font>
             </property>
             <property name="text">
-             <string>↓</string>
+             <string>↔</string>
             </property>
            </widget>
           </item>
@@ -260,7 +290,17 @@ background-color: rgb(255, 156, 156);
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_10">
           <item>
-           <widget class="QDial" name="dial_5"/>
+           <widget class="QDial" name="GraphScale_dial">
+            <property name="wrapping">
+             <bool>true</bool>
+            </property>
+            <property name="notchTarget">
+             <double>13.000000000000000</double>
+            </property>
+            <property name="notchesVisible">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_13">
@@ -270,7 +310,7 @@ background-color: rgb(255, 156, 156);
              </font>
             </property>
             <property name="text">
-             <string>↕</string>
+             <string>…</string>
             </property>
            </widget>
           </item>
@@ -353,7 +393,17 @@ background-color: rgb(255, 156, 156);
          </widget>
         </item>
         <item>
-         <widget class="QDial" name="dial_3"/>
+         <widget class="QDial" name="TriggerPosition_dial">
+          <property name="wrapping">
+           <bool>true</bool>
+          </property>
+          <property name="notchTarget">
+           <double>13.000000000000000</double>
+          </property>
+          <property name="notchesVisible">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pushButton_6">
@@ -496,7 +546,7 @@ background-color: rgb(255, 156, 156);
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -561,7 +611,7 @@ background-color: rgb(255, 156, 156);
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>

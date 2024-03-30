@@ -9,12 +9,8 @@ ControlPanel::ControlPanel(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QStringList strlst;
-
     for(int i=1; i<=9; i++)
-        strlst.append("Channel " + QString::number(i));
-
-    ui->ChannelSelection_comboBox->addItems(strlst);
+        ui->ChannelSelection_comboBox->addItem("Channel " + QString::number(i), i);
 
     QTreeWidgetItem *itm = new QTreeWidgetItem(ui->treeWidget);
     QTreeWidgetItem *itm2 = new QTreeWidgetItem(itm);
@@ -92,5 +88,50 @@ void ControlPanel::on_GroupSize_Box_valueChanged(int arg1)
 void ControlPanel::on_CounterChannel_Box_valueChanged(int arg1)
 {
     emit CounterChannel_Signal(arg1);
+}
+
+void ControlPanel::on_GraphPosition_dial_valueChanged(int value)
+{
+    emit ChannelChange_Signal(-1,
+                              value - 50,
+                              0,
+                              ui->GraphScale_dial->value() * 10,
+                              0
+                              );
+    // Если мы меняем настройки для всех каналов, то мы должны сохранить значения для y => можно не передавать значения
+}
+
+void ControlPanel::on_GraphScale_dial_valueChanged(int value)
+{
+    emit ChannelChange_Signal(-1,
+                              ui->GraphPosition_dial->value() - 50,
+                              0,
+                              value * 10,
+                              0
+                              );
+}
+
+
+void ControlPanel::on_ChannalPosition_dial_valueChanged(int value)
+{
+    int chan_num = ui->ChannelSelection_comboBox->currentData().value<int>();
+    emit ChannelChange_Signal(chan_num,
+                              ui->GraphPosition_dial->value() - 50,
+                              value - 50,
+                              ui->GraphScale_dial->value() * 10,
+                              ui->ChannalScale_dial->value()
+                              );
+}
+
+
+void ControlPanel::on_ChannalScale_dial_valueChanged(int value)
+{
+    int chan_num = ui->ChannelSelection_comboBox->currentData().value<int>();
+    emit ChannelChange_Signal(chan_num,
+                              ui->GraphPosition_dial->value() - 50,
+                              ui->ChannalPosition_dial->value() - 50,
+                              ui->GraphScale_dial->value() * 10,
+                              value
+                              );
 }
 

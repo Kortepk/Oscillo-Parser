@@ -26,13 +26,9 @@ private slots:
     void on_Connect_action_triggered();
     void on_PortSettings_action_triggered();
     void readData();
-
     void on_MaxPointSlider_sliderMoved(int position);
-
     void on_pushButton_clicked();
-
     void on_pushButtonTest_clicked();
-
 
 private:
     Ui::MainWindow *ui;
@@ -42,6 +38,8 @@ private:
     void initSettings(void);
     void CloseFlowPanel(void);
     void closeEvent(QCloseEvent *event);
+    void ConcreteChangeGraph(int *channel, float *min_x, float *min_y, float *max_x, float *max_y);
+    void ChangeGraph(int channel, float shift_x, float shift_y, float scale_x, float scale_y);
 
     SettingsDialog *SetDial = nullptr;
     SettingsDialog *m_settings = nullptr;
