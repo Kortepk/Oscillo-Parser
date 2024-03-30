@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>250</width>
-    <height>330</height>
+    <width>230</width>
+    <height>350</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>250</width>
-    <height>330</height>
+    <width>230</width>
+    <height>350</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -38,7 +38,7 @@
       <number>9</number>
      </property>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="StartPause_Button">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -100,7 +100,7 @@ background-color: rgb(255, 156, 156);
          <x>10</x>
          <y>10</y>
          <width>101</width>
-         <height>231</height>
+         <height>261</height>
         </rect>
        </property>
        <property name="font">
@@ -138,7 +138,7 @@ background-color: rgb(255, 156, 156);
            <number>9</number>
           </property>
           <property name="placeholderText">
-           <string>Channel 1</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -153,11 +153,23 @@ background-color: rgb(255, 156, 156);
          <layout class="QHBoxLayout" name="horizontalLayout_7">
           <item>
            <widget class="QDial" name="ChannalPosition_dial">
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+            <property name="pageStep">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>500</number>
+            </property>
             <property name="wrapping">
              <bool>true</bool>
             </property>
             <property name="notchTarget">
-             <double>13.000000000000000</double>
+             <double>125.000000000000000</double>
             </property>
             <property name="notchesVisible">
              <bool>true</bool>
@@ -189,11 +201,23 @@ background-color: rgb(255, 156, 156);
          <layout class="QHBoxLayout" name="horizontalLayout_8">
           <item>
            <widget class="QDial" name="ChannalScale_dial">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>999</number>
+            </property>
+            <property name="pageStep">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
             <property name="wrapping">
              <bool>true</bool>
             </property>
             <property name="notchTarget">
-             <double>13.000000000000000</double>
+             <double>124.750000000000000</double>
             </property>
             <property name="notchesVisible">
              <bool>true</bool>
@@ -214,6 +238,41 @@ background-color: rgb(255, 156, 156);
           </item>
          </layout>
         </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QSpinBox" name="ChannelScale_Box">
+            <property name="frame">
+             <bool>true</bool>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="keyboardTracking">
+             <bool>true</bool>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>999</number>
+            </property>
+            <property name="value">
+             <number>500</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="PrefixScaleY_comboBox">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </widget>
       <widget class="QGroupBox" name="groupBox_6">
@@ -222,7 +281,7 @@ background-color: rgb(255, 156, 156);
          <x>120</x>
          <y>10</y>
          <width>101</width>
-         <height>231</height>
+         <height>261</height>
         </rect>
        </property>
        <property name="font">
@@ -255,11 +314,23 @@ background-color: rgb(255, 156, 156);
          <layout class="QHBoxLayout" name="horizontalLayout_9">
           <item>
            <widget class="QDial" name="GraphPosition_dial">
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+            <property name="pageStep">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>500</number>
+            </property>
             <property name="wrapping">
              <bool>true</bool>
             </property>
             <property name="notchTarget">
-             <double>13.000000000000000</double>
+             <double>125.000000000000000</double>
             </property>
             <property name="notchesVisible">
              <bool>true</bool>
@@ -291,11 +362,23 @@ background-color: rgb(255, 156, 156);
          <layout class="QHBoxLayout" name="horizontalLayout_10">
           <item>
            <widget class="QDial" name="GraphScale_dial">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>999</number>
+            </property>
+            <property name="pageStep">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
             <property name="wrapping">
              <bool>true</bool>
             </property>
             <property name="notchTarget">
-             <double>13.000000000000000</double>
+             <double>124.750000000000000</double>
             </property>
             <property name="notchesVisible">
              <bool>true</bool>
@@ -311,6 +394,41 @@ background-color: rgb(255, 156, 156);
             </property>
             <property name="text">
              <string>…</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QSpinBox" name="GraphScale_Box">
+            <property name="frame">
+             <bool>true</bool>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="keyboardTracking">
+             <bool>true</bool>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>999</number>
+            </property>
+            <property name="value">
+             <number>500</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="PrefixScaleX_comboBox">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
             </property>
            </widget>
           </item>

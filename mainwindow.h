@@ -40,6 +40,7 @@ private:
     void closeEvent(QCloseEvent *event);
     void ConcreteChangeGraph(int *channel, float *min_x, float *min_y, float *max_x, float *max_y);
     void ChangeGraph(int channel, float shift_x, float shift_y, float scale_x, float scale_y);
+    void StartPauseReadData();
 
     SettingsDialog *SetDial = nullptr;
     SettingsDialog *m_settings = nullptr;
@@ -47,6 +48,9 @@ private:
     QDialog *ControlPnlDialog = nullptr;
 
     int Channel_Size = 1;
+    int fillingIndex = 0;// Заполняемый индекс
+    bool PortReadFlag = true;
+
 
 };
 #endif // MAINWINDOW_H

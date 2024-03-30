@@ -17,12 +17,14 @@ public:
     int Get_MaxPointSlider();
     int Get_GroupSizeValue();
     void Change_TurnFlowMode(bool FlowMode_Flag);
+    float ShiftMid_x = 0;
 
 signals:
     void TurnFlowMode_Signal(bool); // (Событие на изменение режима виджета) arg: плавающий/не плавающий
     void GroupSize_Signal(int); // (Событие изменения размера графиков) arg: новый размер
     void CounterChannel_Signal(int); // (Событие изменения количество каналов) arg: количество каналов
     void ChannelChange_Signal(int, float, float, float, float); // arg: Номер канала,  cдвиг относительно триггера, позиция y, масштаб по x (времени), масштаб по y
+    void StartPause_Signal();
 
 private slots:
     void on_TurnFlowMode_clicked();
@@ -33,6 +35,7 @@ private slots:
     void on_GraphPosition_dial_valueChanged(int value);
     void on_ChannalPosition_dial_valueChanged(int value);
     void on_ChannalScale_dial_valueChanged(int value);
+    void on_StartPause_Button_clicked();
 
 private:
     Ui::ControlPanel *ui;
