@@ -10,9 +10,10 @@ ControlPanel::ControlPanel(QWidget *parent)
     ui->setupUi(this);
 
     // Настройка комбобоксов
-    for(int i=1; i<=9; i++)
-        ui->ChannelSelection_comboBox->addItem("Channel " + QString::number(i), i);
+    //for(int i=1; i<=9; i++)
+    //    ui->ChannelSelection_comboBox->addItem("Channel " + QString::number(i), i);
 
+    ui->ChannelSelection_comboBox->addItem("Channel 1", 1);
     ui->PrefixScaleY_comboBox->setCurrentIndex(0);
 
     ui->PrefixScaleX_comboBox->addItem(tr("kilo"), 3);
@@ -104,6 +105,17 @@ void ControlPanel::on_GroupSize_Box_valueChanged(int arg1)
 
 void ControlPanel::on_CounterChannel_Box_valueChanged(int arg1)
 {
+    if(ChannalSize < arg1)
+    {
+        ChannalSize = arg1;
+        ui->ChannelSelection_comboBox->addItem("Channel " + QString::number(ChannalSize), ChannalSize);
+    }
+    else
+    {
+        ChannalSize = arg1;
+        ui->ChannelSelection_comboBox->removeItem(ChannalSize);
+    }
+
     emit CounterChannel_Signal(arg1);
 }
 

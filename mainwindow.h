@@ -34,6 +34,7 @@ private:
     Ui::MainWindow *ui;
     void ChangeGroupSize(int val);
     void initActionsConnections(void);
+    void initSine(int channel);
     void UpdateGraph(void);
     void initSettings(void);
     void CloseFlowPanel(void);

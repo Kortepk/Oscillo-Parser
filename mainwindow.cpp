@@ -14,6 +14,7 @@
 #include "ControlPanel.h"
 #include <QCloseEvent>
 #include <QValueAxis>
+#include <cmath>
 
 #define byte5 0
 
@@ -53,6 +54,23 @@ MainWindow::~MainWindow()
 }
 
 
+void MainWindow::initSine(int channel)
+{
+    Series_pointer[channel]->clear();
+
+    float i;
+
+    for(i=0; i <= M_PI * 6; i+=0.05)
+        ListPoint[channel] << QPointF(i, 2.5 * sin(i));
+
+    ListPoint[channel] << QPointF(i, 0); // Последнее значение
+
+    Series_pointer[channel]->replace(ListPoint[channel]);
+
+    qDebug() << "init" << channel;
+}
+
+
 void MainWindow::initSettings()
 {
     MainPort = new QSerialPort(this);
@@ -69,8 +87,7 @@ void MainWindow::initSettings()
     Series_pointer[0] = new QtCharts::QLineSeries();
     ChartView_pointer[0] = new QtCharts::QChartView();
 
-    Series_pointer[0]->append(-10, -10);
-    Series_pointer[0]->append(10, 10);
+    initSine(0);
 
     ChartView_pointer[0]->chart()->legend()->hide();
     ChartView_pointer[0]->chart()->addSeries(Series_pointer[0]);
@@ -162,8 +179,12 @@ void MainWindow::ChangeGraph(int channel, float shift_x, float shift_y, float sc
 {
     if(channel <= 0) // Если мы производим настройку по времени
     {   // (0.0; 1.0)  * (max_x - min_x)
-        shift_x = (shift_x / 1000.f) * (ListPoint[0].at(ListPoint[0].size() - 1).x()
-                                    - ListPoint[0].at(0).x());
+        if(ListPoint[0].size() > 2)
+            shift_x = (shift_x / 1000.f) * (ListPoint[0].at(ListPoint[0].size() - 1).x()
+                                          - ListPoint[0].at(0).x());\
+        else
+            shift_x /= 1000;
+
         ControlPnl->ShiftMid_x = shift_x;
     }
 
@@ -335,8 +356,9 @@ void MainWindow::CounterChannel_Changed(int arg1)
         Series_pointer[chn] = new QtCharts::QLineSeries();  // Create object and get this pointter
         ChartView_pointer[chn] = new QtCharts::QChartView();
 
-        Series_pointer[chn]->append(-10, -10);
-        Series_pointer[chn]->append(10, 10);
+        if(!MainPort->isOpen())
+            initSine(chn);
+
         ChartView_pointer[chn]->chart()->addSeries(Series_pointer[chn]);
         ChartView_pointer[chn]->chart()->createDefaultAxes();
         ChartView_pointer[chn]->chart()->legend()->hide();
@@ -383,7 +405,15 @@ void MainWindow::on_Connect_action_triggered()
             QMessageBox::critical(this, tr("Error"), MainPort->errorString());
             return;
         }
-        MainPort->flush();
+
+        for(int i=0;i<Channel_Size;i++){
+
+            Series_pointer[i]->clear();
+            ListPoint[i].clear();
+        }
+
+        MainPort->clear();
+        MainTimer.restart();
         ui->Connect_action->setText("Disonnect");
     }
     else

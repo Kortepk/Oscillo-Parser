@@ -40,6 +40,8 @@ private slots:
 private:
     Ui::ControlPanel *ui;
     void CheckTurnFlowMode();
+
+    int ChannalSize = 1;
 };
 
 #endif // CONTROLPANEL_H
