@@ -1,9 +1,7 @@
 Virtual desktop parser for view oscillographe data from com port. 
 Create in QT
 
-**Number of channels:** add or reduces oscilloscope screen/graphs
-
-**Group size:** change changes the size of the graphs
+<img src="img/MainWindow.png">
 
 # Data Format
 **Int32:** A string consisting of this format should be sent to the com port input:
