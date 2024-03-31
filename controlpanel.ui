@@ -88,7 +88,7 @@ background-color: rgb(255, 156, 156);
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -464,16 +464,42 @@ background-color: rgb(255, 156, 156);
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QRadioButton" name="Allways_rb">
           <property name="text">
-           <string>Single</string>
+           <string>Allways</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_5">
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="Single_rb">
           <property name="text">
-           <string>Auto</string>
+           <string>Single</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="Trigger_rb">
+          <property name="text">
+           <string>By trigger</string>
           </property>
          </widget>
         </item>
@@ -493,7 +519,7 @@ background-color: rgb(255, 156, 156);
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
-         <widget class="QComboBox" name="ChannelSelection_comboBox_2">
+         <widget class="QComboBox" name="TrigChannel_comboBox">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -521,11 +547,17 @@ background-color: rgb(255, 156, 156);
         </item>
         <item>
          <widget class="QDial" name="TriggerPosition_dial">
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+          <property name="pageStep">
+           <number>1</number>
+          </property>
           <property name="wrapping">
            <bool>true</bool>
           </property>
           <property name="notchTarget">
-           <double>13.000000000000000</double>
+           <double>100.000000000000000</double>
           </property>
           <property name="notchesVisible">
            <bool>true</bool>
@@ -533,7 +565,7 @@ background-color: rgb(255, 156, 156);
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_6">
+         <widget class="QPushButton" name="SetHalf_Button">
           <property name="text">
            <string>Set 50%</string>
           </property>
@@ -672,6 +704,9 @@ background-color: rgb(255, 156, 156);
        <property name="maximum">
         <number>1000</number>
        </property>
+       <property name="value">
+        <number>333</number>
+       </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -735,7 +770,7 @@ background-color: rgb(255, 156, 156);
            <number>9999</number>
           </property>
           <property name="value">
-           <number>150</number>
+           <number>333</number>
           </property>
          </widget>
         </item>

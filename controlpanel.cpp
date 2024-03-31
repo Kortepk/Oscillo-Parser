@@ -20,6 +20,7 @@ ControlPanel::ControlPanel(QWidget *parent)
     //    ui->ChannelSelection_comboBox->addItem("Channel " + QString::number(i), i);
 
     ui->ChannelSelection_comboBox->addItem("Channel 1", 1);
+    ui->TrigChannel_comboBox->addItem("Channel 1", 1);
     //ui->PrefixScaleY_comboBox->setCurrentIndex(0);
 
     ui->PrefixScaleX_comboBox->addItem(tr("kilo"), 3);
@@ -136,11 +137,13 @@ void ControlPanel::on_CounterChannel_Box_valueChanged(int arg1)
     {
         ChannalSize = arg1;
         ui->ChannelSelection_comboBox->addItem("Channel " + QString::number(ChannalSize), ChannalSize);
+        ui->TrigChannel_comboBox->addItem("Channel " + QString::number(ChannalSize), ChannalSize);
     }
     else
     {
         ChannalSize = arg1;
         ui->ChannelSelection_comboBox->removeItem(ChannalSize);
+        ui->TrigChannel_comboBox->removeItem(ChannalSize);
     }
 
     emit CounterChannel_Signal(arg1);
@@ -190,7 +193,6 @@ void ControlPanel::on_GraphScale_dial_valueChanged(int value)
 }
 
 
-
 void ControlPanel::on_ChannalPosition_dial_valueChanged(int value)
 {
     float val_fl = value / 100.f;
@@ -222,8 +224,6 @@ void ControlPanel::on_ChannalScale_dial_valueChanged(int value)
 
 void ControlPanel::on_StartPause_Button_clicked()
 {
-    emit StartPause_Signal();
-
     // Обратной связи от MainWindow нету, поэтмоу такое изменение кнопки
 
     if(ui->StartPause_Button->text() == "Pause")
@@ -240,6 +240,7 @@ void ControlPanel::on_StartPause_Button_clicked()
             "QPushButton{border-radius: 4px;background-color: rgb(255, 156, 156);}"
             );
     }
+    emit StartPause_Signal();
 }
 
 /* SLIDERS_PRESSED() */
@@ -314,4 +315,41 @@ void ControlPanel::on_pushButtonTest_clicked()
 }
 
 
+
+
+void ControlPanel::on_Allways_rb_clicked()
+{
+    emit ChangeParseMode_Signal(0);
+}
+
+
+void ControlPanel::on_Single_rb_clicked()
+{
+    emit ChangeParseMode_Signal(1);
+}
+
+
+void ControlPanel::on_Trigger_rb_clicked()
+{
+    emit ChangeParseMode_Signal(2);
+}
+
+
+void ControlPanel::on_TriggerPosition_dial_valueChanged(int value)
+{
+    int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
+    float fl_val = value / 100.f;
+    emit TriggerChanged_Signal(chan_num, fl_val);
+}
+
+
+void ControlPanel::on_SetHalf_Button_clicked()
+{
+    emit ClickHalfTrig_Signal();
+}
+
+void ControlPanel::SetTrigValue(float val)
+{
+    ui->TriggerPosition_dial->setValue(100 * val);
+}
 

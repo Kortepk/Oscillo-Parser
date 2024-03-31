@@ -121,7 +121,7 @@ void MainWindow::initSettings()
 void MainWindow::UpdateGraph(void)
 {
 
-    if(MainPort->isOpen())
+    if(MainPort->isOpen() && (fillingIndex >= 2)) // 2 for trigger
     {
         for(int i = 0; i < Channel_Size; i++)
         {
@@ -140,8 +140,44 @@ void MainWindow::initActionsConnections()
     connect(ControlPnl, &ControlPanel::ChannelChange_Signal, this, &MainWindow::ChangeGraph);
     connect(ControlPnl, &ControlPanel::StartPause_Signal, this, &MainWindow::StartPauseReadData);
     connect(ControlPnl, &ControlPanel::TestPushButton_Signal, this, &MainWindow::TestFunction);
+    connect(ControlPnl, &ControlPanel::ChangeParseMode_Signal, this, &MainWindow::ChangeParsingMode);
+    connect(ControlPnl, &ControlPanel::TriggerChanged_Signal, this, &MainWindow::TrigerValueChanged);
+    connect(ControlPnl, &ControlPanel::ClickHalfTrig_Signal, this, &MainWindow::CalcHalfTrigger);
 
     connect(ControlPnlDialog, &QDialog::finished, this, &MainWindow::CloseFlowPanel);
+}
+
+void MainWindow::CalcHalfTrigger()
+{
+    float HalfVal = (LastMaxPoint + LastMinPoint)/2;
+    ControlPnl->SetTrigValue(HalfVal);
+}
+
+void MainWindow::TrigerValueChanged(int channel, float val)
+{
+    TriggerValue = val;
+#if 0
+    Series_pointer[9] = new QtCharts::QLineSeries();
+
+    ListPoint[9] << QPointF(0, val) << QPointF(100, val);
+
+    Series_pointer[9]->replace(ListPoint[9]);
+
+    Series_pointer[9]->setColor(QColor(255, 128, 0));
+    ChartView_pointer[channel]->chart()->addSeries(Series_pointer[9]);
+#endif
+    qDebug() << val;
+}
+
+void MainWindow::ChangeParsingMode(int mode)
+{
+    TriggerMode = mode;
+
+    if(TriggerMode == 1)
+    {
+        PortReadFlag = true;
+        fillingIndex = 0;
+    }
 }
 
 void MainWindow::TestFunction()
@@ -279,20 +315,40 @@ void MainWindow::readData()
 
                 if(NumberChannel == 1)
                 {
-                    if(ListPoint[0].size() == 0)
-                        MainTimer.start();
+                    float ReadingValue = str.toFloat();
+
+                    if(fillingIndex == 0)
+                        MainTimer.restart();
+                    else
+                        if((TriggerMode >= 1) && (fillingIndex <= 1)) // Only for fillingIndex == 1
+                    {
+                        if((ListPoint[0].at(0).y() <= TriggerValue) && (TriggerValue <= ReadingValue))
+                        {
+                            ; // ControlPnl->on_StartPause_Button_clicked(); // Выключаем приём
+                        }
+                        else
+                        {
+                            MainTimer.restart();
+                            fillingIndex = 0;
+                        }
+                    }
+
 
                     if(ListPoint[0].size() < MaxPoint)
                     {
-                        ListPoint[0] << QPointF(MainTimer.nsecsElapsed() * 0.000001, str.toFloat()); //
-                        float db = MainTimer.nsecsElapsed() * 0.000001;
-                        qDebug() << MainTimer.elapsed() << QString::number(db,'g',6);
+                        ListPoint[0] << QPointF(MainTimer.nsecsElapsed() * 0.000001, ReadingValue); //
+                        fillingIndex ++;
+
+                        if(fillingIndex >= MaxPoint)
+                        {
+                            MainTimer.restart();
+                            fillingIndex = 0;
+                        }
                     }
                     else
                     {
                         if(ListPoint[0].size() != MaxPoint) // Массив стал меньше
                         {
-                            qDebug() << "Resize";
                             while(ListPoint[0].size() != MaxPoint)
                                 ListPoint[0].removeLast();
 
@@ -305,16 +361,37 @@ void MainWindow::readData()
 
                         TempPoint = ListPoint[0].at(fillingIndex);
                         TempPoint.setX(MainTimer.nsecsElapsed() * 0.000001);
-                        TempPoint.setY(str.toFloat());
+                        TempPoint.setY(ReadingValue);
                         ListPoint[0].replace(fillingIndex, TempPoint);
 
                         fillingIndex ++;
+
                         if(fillingIndex >= MaxPoint)
                         {
                             MainTimer.restart();
                             fillingIndex = 0;
+
+                            if(TriggerMode == 1)
+                                ControlPnl->on_StartPause_Button_clicked();
+                            // Nothing for TriggerMode == 2
+
+                            LastMinPoint = NowMinPoint;
+                            LastMaxPoint = NowMaxPoint;
                         }
                     }
+
+                    if(fillingIndex == 1)
+                    {
+                        NowMinPoint = ReadingValue;
+                        NowMaxPoint = ReadingValue;
+                    }
+
+                    if(ReadingValue < NowMinPoint)
+                        NowMinPoint = ReadingValue;
+
+                    if(ReadingValue > NowMaxPoint)
+                        NowMaxPoint = ReadingValue;
+
                     //qDebug() << fillingIndex << str.toFloat();
 
                 }
@@ -324,6 +401,12 @@ void MainWindow::readData()
                         ListPoint[1] << QPointF(MainTimer.elapsed() * 0.001, str.toFloat()); //
                     else
                     {
+                        if(ListPoint[0].size() != MaxPoint) // Массив стал меньше
+                        {
+                            while(ListPoint[0].size() != MaxPoint)
+                                ListPoint[0].removeLast();
+                        }
+
                         TempPoint = ListPoint[1].at(fillingIndex);
                         TempPoint.setY(str.toFloat());
                         TempPoint.setY(str.toFloat());
@@ -427,6 +510,11 @@ void MainWindow::on_Connect_action_triggered()
 
             Series_pointer[i]->clear();
             ListPoint[i].clear();
+        }
+
+        if(!PortReadFlag)
+        {
+            ControlPnl->on_StartPause_Button_clicked(); // При подключении включаем приём
         }
 
         MainPort->clear();
