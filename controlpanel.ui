@@ -208,7 +208,7 @@ background-color: rgb(255, 156, 156);
              <number>1</number>
             </property>
             <property name="maximum">
-             <number>999</number>
+             <number>5000</number>
             </property>
             <property name="pageStep">
              <number>1</number>
@@ -242,39 +242,20 @@ background-color: rgb(255, 156, 156);
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QSpinBox" name="ChannelScale_Box">
-            <property name="frame">
-             <bool>true</bool>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::NoButtons</enum>
-            </property>
-            <property name="keyboardTracking">
-             <bool>true</bool>
-            </property>
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <number>999</number>
-            </property>
-            <property name="value">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="PrefixScaleY_comboBox">
-            <property name="font">
-             <font>
-              <pointsize>8</pointsize>
-             </font>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Minimum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>23</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
@@ -375,7 +356,7 @@ background-color: rgb(255, 156, 156);
           <item>
            <widget class="QDial" name="GraphScale_dial">
             <property name="minimum">
-             <number>1</number>
+             <number>100</number>
             </property>
             <property name="maximum">
              <number>999</number>
@@ -384,7 +365,7 @@ background-color: rgb(255, 156, 156);
              <number>1</number>
             </property>
             <property name="value">
-             <number>1</number>
+             <number>990</number>
             </property>
             <property name="wrapping">
              <bool>true</bool>
@@ -414,24 +395,27 @@ background-color: rgb(255, 156, 156);
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
-           <widget class="QSpinBox" name="GraphScale_Box">
-            <property name="frame">
+           <widget class="QDoubleSpinBox" name="GraphScale_Box">
+            <property name="readOnly">
              <bool>true</bool>
             </property>
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::NoButtons</enum>
             </property>
-            <property name="keyboardTracking">
-             <bool>true</bool>
+            <property name="decimals">
+             <number>1</number>
             </property>
             <property name="minimum">
-             <number>1</number>
+             <double>0.100000000000000</double>
             </property>
             <property name="maximum">
-             <number>999</number>
+             <double>10.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.010000000000000</double>
             </property>
             <property name="value">
-             <number>1</number>
+             <double>0.100000000000000</double>
             </property>
            </widget>
           </item>
@@ -661,7 +645,7 @@ background-color: rgb(255, 156, 156);
         </rect>
        </property>
        <property name="minimum">
-        <number>1</number>
+        <number>100</number>
        </property>
        <property name="maximum">
         <number>100000</number>
@@ -832,6 +816,28 @@ channels</string>
        </property>
        <property name="text">
         <string>Memory deepth</string>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="MaxPoint_Box">
+       <property name="geometry">
+        <rect>
+         <x>150</x>
+         <y>230</y>
+         <width>51</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::NoButtons</enum>
+       </property>
+       <property name="minimum">
+        <number>100</number>
+       </property>
+       <property name="maximum">
+        <number>100000</number>
+       </property>
+       <property name="value">
+        <number>1000</number>
        </property>
       </widget>
      </widget>

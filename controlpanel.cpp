@@ -3,6 +3,7 @@
 #include "ui_controlpanel.h"
 #include <QDebug>
 #include <QTimer>
+#include <cmath>
 
 bool TurnFlowMode_Flag = false;
 
@@ -19,22 +20,27 @@ ControlPanel::ControlPanel(QWidget *parent)
     //    ui->ChannelSelection_comboBox->addItem("Channel " + QString::number(i), i);
 
     ui->ChannelSelection_comboBox->addItem("Channel 1", 1);
-    ui->PrefixScaleY_comboBox->setCurrentIndex(0);
+    //ui->PrefixScaleY_comboBox->setCurrentIndex(0);
 
     ui->PrefixScaleX_comboBox->addItem(tr("kilo"), 3);
+    ui->PrefixScaleX_comboBox->addItem(tr("hecto"), 2);
+    ui->PrefixScaleX_comboBox->addItem(tr("deca"), 1);
     ui->PrefixScaleX_comboBox->addItem(tr("^0"), 0);
+    ui->PrefixScaleX_comboBox->addItem(tr("deci"), -1);
+    ui->PrefixScaleX_comboBox->addItem(tr("centi"), -2);
     ui->PrefixScaleX_comboBox->addItem(tr("milli"), -3);
+    ui->PrefixScaleX_comboBox->addItem(tr("^-4"), -4);
+    ui->PrefixScaleX_comboBox->addItem(tr("^-5"), -5);
     ui->PrefixScaleX_comboBox->addItem(tr("micro"), -6);
-    ui->PrefixScaleX_comboBox->addItem(tr("nano"), -9);
     ui->PrefixScaleX_comboBox->setCurrentIndex(1);
-
+/*
     ui->PrefixScaleY_comboBox->addItem(tr("kilo"), 3);
     ui->PrefixScaleY_comboBox->addItem(tr("^0"), 0);
     ui->PrefixScaleY_comboBox->addItem(tr("milli"), -3);
     ui->PrefixScaleY_comboBox->addItem(tr("micro"), -6);
     ui->PrefixScaleY_comboBox->addItem(tr("nano"), -9);
     ui->PrefixScaleY_comboBox->setCurrentIndex(1);
-
+*/
     QTreeWidgetItem *itm = new QTreeWidgetItem(ui->treeWidget);
     QTreeWidgetItem *itm2 = new QTreeWidgetItem(itm);
     itm->setText(0, "Hello");
@@ -142,49 +148,51 @@ void ControlPanel::on_CounterChannel_Box_valueChanged(int arg1)
 
 void ControlPanel::on_GraphPosition_dial_valueChanged(int value)
 {
-    emit ChannelChange_Signal(-1,
-                              value,
-                              0,
-                              ui->GraphScale_dial->value(),
-                              0
-                              );
-    // Если мы меняем настройки для всех каналов, то мы должны сохранить значения для y => можно не передавать значения
+    ViewGraphSet.GraphShiftX = value;
+    emit ChannelChange_Signal(-1);
 }
 
 void ControlPanel::on_GraphScale_dial_valueChanged(int value)
 {
-    ui->GraphScale_Box->setValue(value);
-    emit ChannelChange_Signal(-1,
-                              ui->GraphPosition_dial->value(),
-                              0,
-                              value,
-                              0
-                              );
+    float val_fl = value / 100.f;
+
+    qDebug() << val_fl;
+
+    if(ViewGraphSet.GraphScaleX > 9.9 && val_fl < 1.1) // Увеличить степень
+    {
+        if(ui->PrefixScaleX_comboBox->currentIndex() > 0)
+            ui->PrefixScaleX_comboBox->setCurrentIndex(ui->PrefixScaleX_comboBox->currentIndex()-1);
+    }
+    else
+    if(ViewGraphSet.GraphScaleX < 1.1 && val_fl > 9.9) // Уменьшить степень
+    {
+        if(ui->PrefixScaleX_comboBox->currentIndex() < 9)
+            ui->PrefixScaleX_comboBox->setCurrentIndex(ui->PrefixScaleX_comboBox->currentIndex()+1);
+    }
+
+    ViewGraphSet.ScalePrefixX = pow(10, ui->PrefixScaleX_comboBox->currentData().value<int>());
+
+    ViewGraphSet.GraphScaleX = val_fl;
+    ui->GraphScale_Box->setValue(val_fl);
+
+    emit ChannelChange_Signal(-1);
 }
+
 
 
 void ControlPanel::on_ChannalPosition_dial_valueChanged(int value)
 {
     int chan_num = ui->ChannelSelection_comboBox->currentData().value<int>();
-    emit ChannelChange_Signal(chan_num,
-                              ui->GraphPosition_dial->value(),
-                              value,
-                              ui->GraphScale_dial->value(),
-                              ui->ChannalScale_dial->value()
-                              );
+    ViewGraphSet.ChannelShiftY = value;
+    emit ChannelChange_Signal(chan_num);
 }
 
 
 void ControlPanel::on_ChannalScale_dial_valueChanged(int value)
 {
-    ui->ChannelScale_Box->setValue(value);
     int chan_num = ui->ChannelSelection_comboBox->currentData().value<int>();
-    emit ChannelChange_Signal(chan_num,
-                              ui->GraphPosition_dial->value(),
-                              ui->ChannalPosition_dial->value(),
-                              ui->GraphScale_dial->value(),
-                              value
-                              );
+    ViewGraphSet.ChannelScaleY = value/100.f;
+    emit ChannelChange_Signal(chan_num);
 }
 
 
@@ -264,14 +272,16 @@ void ControlPanel::on_GraphScale_dial_sliderPressed()
 }
 
 
-void ControlPanel::on_ChannelScale_Box_valueChanged(int arg1)
+void ControlPanel::on_MaxPoint_Slider_sliderMoved(int position)
 {
-    ui->ChannalScale_dial->setValue(arg1);
+    ui->MaxPoint_Box->setValue(position);
 }
 
 
-void ControlPanel::on_GraphScale_Box_valueChanged(int arg1)
+void ControlPanel::on_pushButtonTest_clicked()
 {
-    ui->GraphScale_dial->setValue(arg1);
+    emit TestPushButton_Signal();
 }
+
+
 

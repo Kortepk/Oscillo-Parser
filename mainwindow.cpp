@@ -139,8 +139,15 @@ void MainWindow::initActionsConnections()
     connect(ControlPnl, &ControlPanel::CounterChannel_Signal, this, &MainWindow::CounterChannel_Changed);
     connect(ControlPnl, &ControlPanel::ChannelChange_Signal, this, &MainWindow::ChangeGraph);
     connect(ControlPnl, &ControlPanel::StartPause_Signal, this, &MainWindow::StartPauseReadData);
+    connect(ControlPnl, &ControlPanel::TestPushButton_Signal, this, &MainWindow::TestFunction);
 
     connect(ControlPnlDialog, &QDialog::finished, this, &MainWindow::CloseFlowPanel);
+}
+
+void MainWindow::TestFunction()
+{
+    for(int i=0; i < ListPoint[0].size(); i++)
+        qDebug() << ListPoint[0].at(i);
 }
 
 void MainWindow::StartPauseReadData()
@@ -175,8 +182,9 @@ void MainWindow::ConcreteChangeGraph(int *channel, float *min_x, float *min_y, f
     Series_pointer[*channel]->attachAxis(axisY);
 }
 
-void MainWindow::ChangeGraph(int channel, float shift_x, float shift_y, float scale_x, float scale_y)
+void MainWindow::ChangeGraph(int channel)//float shift_x, float shift_y, float scale_x, float scale_y)
 {
+    float shift_x = ControlPnl->ViewGraphSet.GraphShiftX;
     if(channel <= 0) // Если мы производим настройку по времени
     {   // (0.0; 1.0)  * (max_x - min_x)
         if(ListPoint[0].size() > 2)
@@ -185,20 +193,21 @@ void MainWindow::ChangeGraph(int channel, float shift_x, float shift_y, float sc
         else
             shift_x /= 1000;
 
-        ControlPnl->ShiftMid_x = shift_x;
+        ControlPnl->ViewGraphSet.ShiftMid_x = shift_x;
     }
-
-    shift_y = (shift_y - 500)/100;
 
     //qDebug() << channel << ControlPnl->ShiftMid_x << shift_y << scale_x << scale_y;
 
-    float min_x = ControlPnl->ShiftMid_x - scale_x/2,
-          min_y = shift_y - scale_y/2,
-          max_x = ControlPnl->ShiftMid_x + scale_x/2,
-          max_y = shift_y + scale_y/2;
+    float min_x = ControlPnl->ViewGraphSet.ShiftMid_x - (ControlPnl->ViewGraphSet.GraphScaleX * ControlPnl->ViewGraphSet.ScalePrefixX)/2,
+          min_y = 0,
+          max_x = ControlPnl->ViewGraphSet.ShiftMid_x + (ControlPnl->ViewGraphSet.GraphScaleX * ControlPnl->ViewGraphSet.ScalePrefixX)/2,
+          max_y = 0;
 
     if(channel > 0) // Если дан конкретный канал
     {
+        float shift_y = (ControlPnl->ViewGraphSet.ChannelShiftY - 500)/100;
+        min_y = shift_y - ControlPnl->ViewGraphSet.ChannelScaleY/2;
+        max_y = shift_y + ControlPnl->ViewGraphSet.ChannelScaleY/2;
         channel -= 1;
         ConcreteChangeGraph(&channel, &min_x, &min_y, &max_x, &max_y);
     }
@@ -279,20 +288,34 @@ void MainWindow::readData()
                     if(ListPoint[0].size() == 0)
                         MainTimer.start();
 
-                    if(ListPoint[0].size() <= MaxPoint)
+                    if(ListPoint[0].size() < MaxPoint)
                     {
-                        ListPoint[0] << QPointF(MainTimer.elapsed() * 0.001, str.toFloat()); //
-                        //qDebug() << MainTimer.elapsed();
+                        ListPoint[0] << QPointF(MainTimer.nsecsElapsed() * 0.000001, str.toFloat()); //
+                        float db = MainTimer.nsecsElapsed() * 0.000001;
+                        qDebug() << MainTimer.elapsed() << QString::number(db,'g',6);
                     }
                     else
                     {
+                        if(ListPoint[0].size() != MaxPoint) // Массив стал меньше
+                        {
+                            qDebug() << "Resize";
+                            while(ListPoint[0].size() != MaxPoint)
+                                ListPoint[0].removeLast();
+
+                            if(fillingIndex >= ListPoint[0].size())
+                            {
+                                MainTimer.restart();
+                                fillingIndex = 0;
+                            }
+                        }
+
                         TempPoint = ListPoint[0].at(fillingIndex);
-                        TempPoint.setX(MainTimer.elapsed() * 0.001);
+                        TempPoint.setX(MainTimer.nsecsElapsed() * 0.000001);
                         TempPoint.setY(str.toFloat());
                         ListPoint[0].replace(fillingIndex, TempPoint);
 
                         fillingIndex ++;
-                        if(fillingIndex >= ListPoint[0].size())
+                        if(fillingIndex >= MaxPoint)
                         {
                             MainTimer.restart();
                             fillingIndex = 0;
@@ -439,39 +462,6 @@ void MainWindow::on_PortSettings_action_triggered()
     SetDial->LoadSettings();
 }
 
-
-void MainWindow::on_MaxPointSlider_sliderMoved(int position)
-{
-    ;//qDebug() << position;
-
-}
-
-
-void MainWindow::on_pushButton_clicked()
-{
-    for(int i=0; i < ListPoint[0].size(); i++)
-    {
-        qDebug() << ListPoint[0].at(i).x() << ListPoint[0].at(i).y();
-    }
-}
-
-
-void MainWindow::on_pushButtonTest_clicked()
-{
-    QDialog dialog;
-    dialog.setWindowTitle("New Window");
-
-    QVBoxLayout layout(&dialog);
-    layout.setContentsMargins(0, 0, 0, 0); // Установка нулевых отступов
-
-    // Добавление виджета в макет окна
-    ControlPanel frm;
-    layout.addWidget(&frm);
-
-    //dialog.show();
-    // Отображение нового окна
-    dialog.exec();
-}
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
