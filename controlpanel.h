@@ -21,11 +21,13 @@ public:
 
     struct GraphSettings
     {
-        float GraphShiftX = 0;
+        float GraphShiftX = 0; // Предыдущее полоджение ручки
         float ChannelShiftY = 0;
         float GraphScaleX = 1;
         float ChannelScaleY = 1;
-        float ScalePrefixX = 0;
+        float ScalePrefixX = 1;
+        int DialTurnoversX = 0; // Количество оборотов ручки сдвига
+        int DialTurnoversY = 0;
         float ShiftMid_x = 0;
         float ShiftMid_y = 0;
     } ViewGraphSet;

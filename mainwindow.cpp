@@ -184,16 +184,9 @@ void MainWindow::ConcreteChangeGraph(int *channel, float *min_x, float *min_y, f
 
 void MainWindow::ChangeGraph(int channel)//float shift_x, float shift_y, float scale_x, float scale_y)
 {
-    float shift_x = ControlPnl->ViewGraphSet.GraphShiftX;
     if(channel <= 0) // Если мы производим настройку по времени
     {   // (0.0; 1.0)  * (max_x - min_x)
-        if(ListPoint[0].size() > 2)
-            shift_x = (shift_x / 1000.f) * (ListPoint[0].at(ListPoint[0].size() - 1).x()
-                                          - ListPoint[0].at(0).x());\
-        else
-            shift_x /= 1000;
-
-        ControlPnl->ViewGraphSet.ShiftMid_x = shift_x;
+        ControlPnl->ViewGraphSet.ShiftMid_x = ControlPnl->ViewGraphSet.GraphShiftX + 10 * ControlPnl->ViewGraphSet.DialTurnoversX;
     }
 
     //qDebug() << channel << ControlPnl->ShiftMid_x << shift_y << scale_x << scale_y;
@@ -203,9 +196,10 @@ void MainWindow::ChangeGraph(int channel)//float shift_x, float shift_y, float s
           max_x = ControlPnl->ViewGraphSet.ShiftMid_x + (ControlPnl->ViewGraphSet.GraphScaleX * ControlPnl->ViewGraphSet.ScalePrefixX)/2,
           max_y = 0;
 
+
     if(channel > 0) // Если дан конкретный канал
     {
-        float shift_y = (ControlPnl->ViewGraphSet.ChannelShiftY - 500)/100;
+        float shift_y = ControlPnl->ViewGraphSet.ChannelShiftY + 10 * ControlPnl->ViewGraphSet.DialTurnoversY;
         min_y = shift_y - ControlPnl->ViewGraphSet.ChannelScaleY/2;
         max_y = shift_y + ControlPnl->ViewGraphSet.ChannelScaleY/2;
         channel -= 1;

@@ -148,7 +148,20 @@ void ControlPanel::on_CounterChannel_Box_valueChanged(int arg1)
 
 void ControlPanel::on_GraphPosition_dial_valueChanged(int value)
 {
-    ViewGraphSet.GraphShiftX = value;
+    float val_fl = value / 100.f;
+
+    if(ViewGraphSet.GraphShiftX > 9.5 && val_fl < 1.5) // Увеличить степень
+    {
+        ViewGraphSet.DialTurnoversX ++;
+    }
+    else
+        if(ViewGraphSet.GraphShiftX < 1.5 && val_fl > 9.5) // Уменьшить степень
+        {
+            ViewGraphSet.DialTurnoversX --;
+        }
+
+    ViewGraphSet.GraphShiftX = val_fl;
+
     emit ChannelChange_Signal(-1);
 }
 
@@ -156,15 +169,13 @@ void ControlPanel::on_GraphScale_dial_valueChanged(int value)
 {
     float val_fl = value / 100.f;
 
-    qDebug() << val_fl;
-
-    if(ViewGraphSet.GraphScaleX > 9.9 && val_fl < 1.1) // Увеличить степень
+    if(ViewGraphSet.GraphScaleX > 9.5 && val_fl < 1.5) // Увеличить степень
     {
         if(ui->PrefixScaleX_comboBox->currentIndex() > 0)
             ui->PrefixScaleX_comboBox->setCurrentIndex(ui->PrefixScaleX_comboBox->currentIndex()-1);
     }
     else
-    if(ViewGraphSet.GraphScaleX < 1.1 && val_fl > 9.9) // Уменьшить степень
+    if(ViewGraphSet.GraphScaleX < 1.5 && val_fl > 9.5) // Уменьшить степень
     {
         if(ui->PrefixScaleX_comboBox->currentIndex() < 9)
             ui->PrefixScaleX_comboBox->setCurrentIndex(ui->PrefixScaleX_comboBox->currentIndex()+1);
@@ -182,8 +193,21 @@ void ControlPanel::on_GraphScale_dial_valueChanged(int value)
 
 void ControlPanel::on_ChannalPosition_dial_valueChanged(int value)
 {
+    float val_fl = value / 100.f;
+
+    if(ViewGraphSet.ChannelShiftY > 9.5 && val_fl < 1.5) // Увеличить степень
+    {
+        ViewGraphSet.DialTurnoversY ++;
+    }
+    else
+        if(ViewGraphSet.ChannelShiftY < 1.5 && val_fl > 9.5) // Уменьшить степень
+        {
+            ViewGraphSet.DialTurnoversY --;
+        }
+
+    ViewGraphSet.ChannelShiftY = val_fl;
+
     int chan_num = ui->ChannelSelection_comboBox->currentData().value<int>();
-    ViewGraphSet.ChannelShiftY = value;
     emit ChannelChange_Signal(chan_num);
 }
 
@@ -224,7 +248,10 @@ void ControlPanel::on_ChannalPosition_dial_sliderPressed()
 {
     if(TimerKnobClick.elapsed() < 300)
     {
-        ui->ChannalPosition_dial->setValue(500);
+        ui->ChannalPosition_dial->setValue(0);
+        ViewGraphSet.DialTurnoversY = 0;
+        ViewGraphSet.ShiftMid_y = 0;
+        ViewGraphSet.ChannelShiftY = 0;
         ui->ChannalPosition_dial->setEnabled(false);
         KnobBlockFlag = true;
         UItimer->start(100);
@@ -237,7 +264,10 @@ void ControlPanel::on_GraphPosition_dial_sliderPressed()
 {
     if(TimerKnobClick.elapsed() < 300)
     {
-        ui->GraphPosition_dial->setValue(500);
+        ui->GraphPosition_dial->setValue(0);
+        ViewGraphSet.DialTurnoversX = 0;
+        ViewGraphSet.ShiftMid_x = 0;
+        ViewGraphSet.GraphShiftX = 0;
         ui->GraphPosition_dial->setEnabled(false);
         KnobBlockFlag = true;
         UItimer->start(100);
@@ -263,7 +293,7 @@ void ControlPanel::on_GraphScale_dial_sliderPressed()
 {
     if(TimerKnobClick.elapsed() < 300)
     {
-        ui->GraphScale_dial->setValue(1);
+        ui->GraphScale_dial->setValue(100);
         ui->GraphScale_dial->setEnabled(false);
         KnobBlockFlag = true;
         UItimer->start(100);
