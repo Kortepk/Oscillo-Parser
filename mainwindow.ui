@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Oscillo-Parser</string>
   </property>
   <property name="locale">
    <locale language="English" country="World"/>

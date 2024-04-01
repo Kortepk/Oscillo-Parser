@@ -143,8 +143,18 @@ void MainWindow::initActionsConnections()
     connect(ControlPnl, &ControlPanel::ChangeParseMode_Signal, this, &MainWindow::ChangeParsingMode);
     connect(ControlPnl, &ControlPanel::TriggerChanged_Signal, this, &MainWindow::TrigerValueChanged);
     connect(ControlPnl, &ControlPanel::ClickHalfTrig_Signal, this, &MainWindow::CalcHalfTrigger);
+    connect(ControlPnl, &ControlPanel::AutoSize_Signal, this, &MainWindow::AutoSizeClick);
 
     connect(ControlPnlDialog, &QDialog::finished, this, &MainWindow::CloseFlowPanel);
+}
+
+void MainWindow::AutoSizeClick()
+{
+    if(LastMinPoint != LastMaxPoint) // Есть хоть какие-то значения
+    {
+        float HalfVal = (LastMaxPoint + LastMinPoint)/2;
+        ControlPnl->SetDialPositionScale(22.5, HalfVal, 45, LastMaxPoint - LastMinPoint);
+    }
 }
 
 void MainWindow::CalcHalfTrigger()
@@ -224,8 +234,6 @@ void MainWindow::ChangeGraph(int channel)//float shift_x, float shift_y, float s
     {   // (0.0; 1.0)  * (max_x - min_x)
         ControlPnl->ViewGraphSet.ShiftMid_x = ControlPnl->ViewGraphSet.GraphShiftX + 10 * ControlPnl->ViewGraphSet.DialTurnoversX;
     }
-
-    //qDebug() << channel << ControlPnl->ShiftMid_x << shift_y << scale_x << scale_y;
 
     float min_x = ControlPnl->ViewGraphSet.ShiftMid_x - (ControlPnl->ViewGraphSet.GraphScaleX * ControlPnl->ViewGraphSet.ScalePrefixX)/2,
           min_y = 0,

@@ -19,6 +19,7 @@ public:
     int Get_GroupSizeValue();
     void Change_TurnFlowMode(bool FlowMode_Flag);
     void SetTrigValue(float val);
+    void SetDialPositionScale(float x, float y, float dx, float dy);
 
     struct GraphSettings
     {
@@ -43,6 +44,7 @@ signals:
     void TriggerChanged_Signal(int, float); // arg: Канал, значение триггера
     void ChangeParseMode_Signal(int); // Сообщает об единичном, постоянном или тригерном режиме
     void ClickHalfTrig_Signal();
+    void AutoSize_Signal();
 
 public slots:
     void on_StartPause_Button_clicked();
@@ -68,6 +70,8 @@ private slots:
     void on_TriggerPosition_dial_valueChanged(int value);
 
     void on_SetHalf_Button_clicked();
+
+    void on_AutoSize_Button_clicked();
 
 private:
     Ui::ControlPanel *ui;

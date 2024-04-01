@@ -43,6 +43,7 @@ private:
     void ChangeParsingMode(int mode);
     void TrigerValueChanged(int channel, float val);
     void CalcHalfTrigger();
+    void AutoSizeClick();
 
     SettingsDialog *SetDial = nullptr;
     SettingsDialog *m_settings = nullptr;

@@ -353,3 +353,29 @@ void ControlPanel::SetTrigValue(float val)
     ui->TriggerPosition_dial->setValue(100 * val);
 }
 
+void ControlPanel::on_AutoSize_Button_clicked()
+{
+    emit AutoSize_Signal();
+}
+
+void ControlPanel::SetDialPositionScale(float x, float y, float dx, float dy)
+{
+    ViewGraphSet.DialTurnoversX = x/10;
+    ViewGraphSet.DialTurnoversY = y/10;
+    x = x - ViewGraphSet.DialTurnoversX * 10;
+    y = y - ViewGraphSet.DialTurnoversY * 10;
+
+    ui->GraphPosition_dial->setValue(x * 100);
+    ui->ChannalPosition_dial->setValue(y * 100);
+
+    ViewGraphSet.ScalePrefixX = 10;
+    ui->PrefixScaleX_comboBox->setCurrentIndex(2);
+
+    ui->GraphScale_dial->setValue(dx * 100);
+    ui->ChannalScale_dial->setValue(dy * 100);
+
+    qDebug() << x << y;
+    // ViewGraphSet.GraphShiftX = x; //  Не обязательно, т.к. создаться событие valueChanged
+    // ViewGraphSet.ChannelShiftY = y;
+}
+
