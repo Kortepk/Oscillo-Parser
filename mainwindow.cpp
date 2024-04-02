@@ -153,7 +153,7 @@ void MainWindow::AutoSizeClick()
     if(LastMinPoint != LastMaxPoint) // Есть хоть какие-то значения
     {
         float HalfVal = (LastMaxPoint + LastMinPoint)/2;
-        ControlPnl->SetDialPositionScale(22.5, HalfVal, 45, LastMaxPoint - LastMinPoint);
+        ControlPnl->SetDialPositionScale(12.5, HalfVal, 2.5, (LastMaxPoint - LastMinPoint) * 1.05);
     }
 }
 
@@ -230,14 +230,15 @@ void MainWindow::ConcreteChangeGraph(int *channel, float *min_x, float *min_y, f
 
 void MainWindow::ChangeGraph(int channel)//float shift_x, float shift_y, float scale_x, float scale_y)
 {
+    float WindSizeX = (ControlPnl->ViewGraphSet.GraphScaleX * ControlPnl->ViewGraphSet.ScalePrefixX);
     if(channel <= 0) // Если мы производим настройку по времени
     {   // (0.0; 1.0)  * (max_x - min_x)
-        ControlPnl->ViewGraphSet.ShiftMid_x = ControlPnl->ViewGraphSet.GraphShiftX + 10 * ControlPnl->ViewGraphSet.DialTurnoversX;
+        ControlPnl->ViewGraphSet.ShiftMid_x = ControlPnl->ViewGraphSet.GraphShiftX *WindSizeX / 10.f + WindSizeX * ControlPnl->ViewGraphSet.DialTurnoversX;
     }
 
-    float min_x = ControlPnl->ViewGraphSet.ShiftMid_x - (ControlPnl->ViewGraphSet.GraphScaleX * ControlPnl->ViewGraphSet.ScalePrefixX)/2,
+    float min_x = ControlPnl->ViewGraphSet.ShiftMid_x - WindSizeX/2,
           min_y = 0,
-          max_x = ControlPnl->ViewGraphSet.ShiftMid_x + (ControlPnl->ViewGraphSet.GraphScaleX * ControlPnl->ViewGraphSet.ScalePrefixX)/2,
+          max_x = ControlPnl->ViewGraphSet.ShiftMid_x + WindSizeX/2,
           max_y = 0;
 
 
