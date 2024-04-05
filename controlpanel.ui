@@ -159,8 +159,11 @@ background-color: rgb(255, 156, 156);
             <property name="maximum">
              <number>999</number>
             </property>
+            <property name="singleStep">
+             <number>5</number>
+            </property>
             <property name="pageStep">
-             <number>1</number>
+             <number>100</number>
             </property>
             <property name="value">
              <number>0</number>
@@ -172,7 +175,7 @@ background-color: rgb(255, 156, 156);
              <bool>true</bool>
             </property>
             <property name="notchTarget">
-             <double>125.000000000000000</double>
+             <double>25.000000000000000</double>
             </property>
             <property name="notchesVisible">
              <bool>true</bool>
@@ -210,8 +213,11 @@ background-color: rgb(255, 156, 156);
             <property name="maximum">
              <number>5000</number>
             </property>
+            <property name="singleStep">
+             <number>5</number>
+            </property>
             <property name="pageStep">
-             <number>1</number>
+             <number>100</number>
             </property>
             <property name="value">
              <number>1</number>
@@ -220,7 +226,7 @@ background-color: rgb(255, 156, 156);
              <bool>true</bool>
             </property>
             <property name="notchTarget">
-             <double>124.750000000000000</double>
+             <double>25.000000000000000</double>
             </property>
             <property name="notchesVisible">
              <bool>true</bool>
@@ -304,8 +310,11 @@ background-color: rgb(255, 156, 156);
             <property name="maximum">
              <number>999</number>
             </property>
+            <property name="singleStep">
+             <number>5</number>
+            </property>
             <property name="pageStep">
-             <number>1</number>
+             <number>100</number>
             </property>
             <property name="value">
              <number>0</number>
@@ -314,7 +323,7 @@ background-color: rgb(255, 156, 156);
              <bool>true</bool>
             </property>
             <property name="notchTarget">
-             <double>125.000000000000000</double>
+             <double>25.000000000000000</double>
             </property>
             <property name="notchesVisible">
              <bool>true</bool>
@@ -352,8 +361,11 @@ background-color: rgb(255, 156, 156);
             <property name="maximum">
              <number>999</number>
             </property>
+            <property name="singleStep">
+             <number>5</number>
+            </property>
             <property name="pageStep">
-             <number>1</number>
+             <number>100</number>
             </property>
             <property name="value">
              <number>990</number>
@@ -362,7 +374,7 @@ background-color: rgb(255, 156, 156);
              <bool>true</bool>
             </property>
             <property name="notchTarget">
-             <double>124.750000000000000</double>
+             <double>25.000000000000000</double>
             </property>
             <property name="notchesVisible">
              <bool>true</bool>
@@ -658,7 +670,7 @@ background-color: rgb(255, 156, 156);
         <number>100</number>
        </property>
        <property name="maximum">
-        <number>100000</number>
+        <number>10000</number>
        </property>
        <property name="value">
         <number>1000</number>
@@ -683,7 +695,7 @@ background-color: rgb(255, 156, 156);
         <number>1000</number>
        </property>
        <property name="value">
-        <number>333</number>
+        <number>300</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -748,7 +760,7 @@ background-color: rgb(255, 156, 156);
            <number>9999</number>
           </property>
           <property name="value">
-           <number>333</number>
+           <number>300</number>
           </property>
          </widget>
         </item>
@@ -847,7 +859,7 @@ channels</string>
         <number>100</number>
        </property>
        <property name="maximum">
-        <number>100000</number>
+        <number>10000</number>
        </property>
        <property name="value">
         <number>1000</number>

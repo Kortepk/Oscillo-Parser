@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "ControlPanel.h"
+#include "oscillo_channel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -36,7 +37,6 @@ private:
     void initSettings(void);
     void CloseFlowPanel(void);
     void closeEvent(QCloseEvent *event);
-    void ConcreteChangeGraph(int *channel, float *min_x, float *min_y, float *max_x, float *max_y);
     void ChangeGraph(int channel);
     void StartPauseReadData();
     void TestFunction();
@@ -49,6 +49,7 @@ private:
     SettingsDialog *m_settings = nullptr;
     ControlPanel *ControlPnl = nullptr;
     QDialog *ControlPnlDialog = nullptr;
+    oscillo_channel ConcreteChannels[10];
 
     int Channel_Size = 1;
     int fillingIndex = 0; // Заполняемый индекс

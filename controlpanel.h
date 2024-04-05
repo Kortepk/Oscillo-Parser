@@ -63,7 +63,6 @@ private slots:
     void on_ChannalScale_dial_sliderPressed();
     void on_GraphScale_dial_sliderPressed();
     void on_pushButtonTest_clicked();
-    void on_MaxPoint_Slider_sliderMoved(int position);
     void on_Allways_rb_clicked();
     void on_Single_rb_clicked();
     void on_Trigger_rb_clicked();
@@ -72,6 +71,8 @@ private slots:
     void on_SetHalf_Button_clicked();
 
     void on_AutoSize_Button_clicked();
+
+    void on_MaxPoint_Slider_valueChanged(int value);
 
 private:
     Ui::ControlPanel *ui;

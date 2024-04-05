@@ -44,6 +44,7 @@ else()
             ${PROJECT_SOURCES}
             settingsdialog.h settingsdialog.cpp settingsdialog.ui
             controlpanel.h controlpanel.cpp controlpanel.ui
+            oscillo_channel.h oscillo_channel.cpp
         )
     endif()
 endif()

@@ -303,10 +303,6 @@ void ControlPanel::on_GraphScale_dial_sliderPressed()
 }
 
 
-void ControlPanel::on_MaxPoint_Slider_sliderMoved(int position)
-{
-    ui->MaxPoint_Box->setValue(position);
-}
 
 
 void ControlPanel::on_pushButtonTest_clicked()
@@ -377,5 +373,11 @@ void ControlPanel::SetDialPositionScale(float x, float y, float dx, float dy)
     qDebug() << x << y;
     // ViewGraphSet.GraphShiftX = x; //  Не обязательно, т.к. создаться событие valueChanged
     // ViewGraphSet.ChannelShiftY = y;
+}
+
+
+void ControlPanel::on_MaxPoint_Slider_valueChanged(int value)
+{
+    ui->MaxPoint_Box->setValue(value);
 }
 
