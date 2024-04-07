@@ -21,6 +21,9 @@ ControlPanel::ControlPanel(QWidget *parent)
 
     ui->ChannelSelection_comboBox->addItem("Channel 1", 1);
     ui->TrigChannel_comboBox->addItem("Channel 1", 1);
+
+    ui->ChannelSelection_comboBox->setCurrentIndex(0);
+    ui->TrigChannel_comboBox->setCurrentIndex(0);
     //ui->PrefixScaleY_comboBox->setCurrentIndex(0);
 
     ui->PrefixScaleX_comboBox->addItem(tr("kilo"), 3);
@@ -99,10 +102,6 @@ void ControlPanel::Change_TurnFlowMode(bool FlowMode_Flag)
     CheckTurnFlowMode();
 }
 
-int ControlPanel::Get_MaxPointSlider()
-{
-    return ui->MaxPoint_Slider->value();
-}
 
 int ControlPanel::Get_GroupSizeValue()
 {
@@ -341,7 +340,8 @@ void ControlPanel::on_TriggerPosition_dial_valueChanged(int value)
 
 void ControlPanel::on_SetHalf_Button_clicked()
 {
-    emit ClickHalfTrig_Signal();
+    int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
+    emit ClickHalfTrig_Signal(chan_num);
 }
 
 void ControlPanel::SetTrigValue(float val)
@@ -351,7 +351,8 @@ void ControlPanel::SetTrigValue(float val)
 
 void ControlPanel::on_AutoSize_Button_clicked()
 {
-    emit AutoSize_Signal();
+    int chan_num = ui->ChannelSelection_comboBox->currentData().value<int>();
+    emit AutoSize_Signal(chan_num);
 }
 
 void ControlPanel::SetDialPositionScale(float x, float y, float dx, float dy)
@@ -379,5 +380,13 @@ void ControlPanel::SetDialPositionScale(float x, float y, float dx, float dy)
 void ControlPanel::on_MaxPoint_Slider_valueChanged(int value)
 {
     ui->MaxPoint_Box->setValue(value);
+    emit ChangeMaxPoint(value);
+}
+
+
+void ControlPanel::on_ChannelSelection_comboBox_currentIndexChanged(int index)
+{
+    qDebug() << ui->ChannelSelection_comboBox->currentData().value<int>();
+    // TODO add SIGNAL load preferences
 }
 

@@ -15,8 +15,6 @@
 #include <QCloseEvent>
 #include <QValueAxis>
 
-#define byte5 0
-
 QSpacerItem *refOscilloSpacer;
 
 QSerialPort* MainPort = nullptr;
@@ -25,7 +23,6 @@ QByteArray RxBuffer;
 
 QElapsedTimer Maintimer;
 QPointF TempPoint;
-
 
 auto start_time = std::chrono::high_resolution_clock::now();
 QElapsedTimer MainTimer;
@@ -85,18 +82,20 @@ void MainWindow::initSettings()
     //dialog.show();
     // Отображение нового окна
 
-    QTimer *timer = new QTimer(this);
+    /*QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::UpdateGraph));
     timer->start(1000/75); // /75
+    */
 }
 
 void MainWindow::UpdateGraph(void)
 {
 
-    if(MainPort->isOpen() && (fillingIndex >= 2)) // 2 for trigger
+    if(MainPort->isOpen()) // 2 for trigger
     {
         for(int i = 0; i < Channel_Size; i++)
         {
+            if(ConcreteChannels[i].fillingIndex >= 2)
             ConcreteChannels[i].ReplaceDots();
         }
     }
@@ -116,12 +115,81 @@ void MainWindow::initActionsConnections()
     connect(ControlPnl, &ControlPanel::TriggerChanged_Signal, this, &MainWindow::TrigerValueChanged);
     connect(ControlPnl, &ControlPanel::ClickHalfTrig_Signal, this, &MainWindow::CalcHalfTrigger);
     connect(ControlPnl, &ControlPanel::AutoSize_Signal, this, &MainWindow::AutoSizeClick);
+    connect(ControlPnl, &ControlPanel::ChangeMaxPoint, this, &MainWindow::ChangeMaxPointFunc);
 
     connect(ControlPnlDialog, &QDialog::finished, this, &MainWindow::CloseFlowPanel);
+
+    for(int i=0; i<10; i++) // Соединяем каналы у всех сигналов
+    {
+        connect(&ConcreteChannels[i], &oscillo_channel::MasterHandle_Signal, this, &MainWindow::SwitchRecieveMaster);
+        connect(&ConcreteChannels[i], &oscillo_channel::OverloadPoints, this, &MainWindow::OverloadPointsHandler);
+    }
 }
 
-void MainWindow::AutoSizeClick()
+void MainWindow::OverloadPointsHandler()
 {
+    UpdateGraph();
+
+    for(int i=0; i < Channel_Size; i++)
+    {
+        ConcreteChannels[i].SaveLastValue();
+
+        ConcreteChannels[i].LastTime = 0;       // При переполнение одного из канала, мы синхронизируем другие
+        ConcreteChannels[i].fillingIndex = 0;
+
+        switch(TriggerMode)
+        {
+        case 0:
+            {
+                ConcreteChannels[i].ModeMaster = false;
+                ConcreteChannels[i].AddPointFlag = true;
+                break;
+            }
+        case 1:
+            {
+                ConcreteChannels[i].AddPointFlag = false; // Ставим на паузу
+            }
+        case 2:
+            {
+                if(ConcreteChannels[i].ModeMaster) // Если обнуляемый канал - мастер, то он продолжаем приём
+                    ConcreteChannels[i].AddPointFlag = true;
+                else
+                    ConcreteChannels[i].AddPointFlag = false;
+                break;
+            }
+        }
+    }
+}
+
+
+void MainWindow::SwitchRecieveMaster(bool status)
+{
+    for(int i=0; i < Channel_Size; i++)
+        ConcreteChannels[i].AddPointFlag = status;
+}
+
+
+void MainWindow::ChangeMaxPointFunc(int pointSize)
+{
+    for(int i=0; i < Channel_Size; i++)
+    {
+        ConcreteChannels[i].MaxPoint = pointSize;
+    }
+}
+
+void MainWindow::AutoSizeClick(int channel)
+{
+    if(channel > Channel_Size) // Валидация на всякий случий
+        return;
+
+    channel -= 1;
+
+    const static float LastMinPoint = ConcreteChannels[channel].LastMinPoint;
+    const static float LastMaxPoint = ConcreteChannels[channel].LastMaxPoint;
+
+    qDebug() << LastMaxPoint << LastMinPoint;
+
+
     if(LastMinPoint != LastMaxPoint) // Есть хоть какие-то значения
     {
         float HalfVal = (LastMaxPoint + LastMinPoint)/2;
@@ -129,9 +197,14 @@ void MainWindow::AutoSizeClick()
     }
 }
 
-void MainWindow::CalcHalfTrigger()
+void MainWindow::CalcHalfTrigger(int channel)
 {
-    float HalfVal = (LastMaxPoint + LastMinPoint)/2;
+    if(channel > Channel_Size) // Валидация на всякий случий
+        return;
+
+    channel -= 1;
+
+    float HalfVal = (ConcreteChannels[channel].LastMaxPoint + ConcreteChannels[channel].LastMinPoint)/2;
     ControlPnl->SetTrigValue(HalfVal);
 }
 
@@ -154,18 +227,13 @@ void MainWindow::TrigerValueChanged(int channel, float val)
 void MainWindow::ChangeParsingMode(int mode)
 {
     TriggerMode = mode;
-
-    if(TriggerMode == 1)
-    {
-        PortReadFlag = true;
-        fillingIndex = 0;
-    }
+    OverloadPointsHandler(); // Обнуляем состояния
 }
 
 void MainWindow::TestFunction()
 {
-    for(int i=0; i < ConcreteChannels[0].ListPoint.size(); i++)
-        qDebug() << ConcreteChannels[0].ListPoint.at(i);
+    //for(int i=0; i < ConcreteChannels[0].ListPoint.size(); i++)
+    //    qDebug() << ConcreteChannels[0].ListPoint.at(i);
 }
 
 void MainWindow::StartPauseReadData()
@@ -236,12 +304,15 @@ void MainWindow::ChangeFlowWindowMode(bool TriggerStatus)
 
 void MainWindow::readData()
 {
-    if(!PortReadFlag && fillingIndex == 0)
+    if(!PortReadFlag)
     {
         MainPort->clear();
         MainTimer.restart();
         return;
     }
+
+    if(MainTimer.elapsed() < 10)
+        return;
 
     RxBuffer += MainPort->readAll();
 
@@ -251,142 +322,56 @@ void MainWindow::readData()
     }
 
     int indexEOF = 0, indexSOF = 0;
-    QString str;
-    const int MaxPoint = ControlPnl->Get_MaxPointSlider();
-    /*
+    QString str, strtm;
+    float avergePacketTime, deltaTime;
+
+    const static int CountPacketSep = RxBuffer.count(';') - 1; // Считаем сколько всего полных пакетов - нач символ
+    const static int CountTimeSep = RxBuffer.count(':');       // Считаем сколько отметок о времени есть
+
+    const int NotConTime = CountPacketSep - CountTimeSep; // Не содержащие отметки о времени
+
+    if(NotConTime > 0)
+        avergePacketTime = (MainTimer.nsecsElapsed() * 0.000001) / NotConTime; // Дельта времение от предыдущего приёма / на все пакеты
+
+
     while(indexSOF < RxBuffer.length())
     {
-        indexSOF = indexEOF;
-        indexEOF = RxBuffer.indexOf(';', indexEOF + 1); // Пропускаем [0] символ ';'
+        indexEOF = RxBuffer.indexOf(';', 1); // Пропускаем [0] т.к. символ ';'
         if (indexEOF != -1) {
-            if(indexEOF - indexSOF > 2) // [1] - номер канала; [2] - ')'
+
+            if(indexEOF > 2) // [1] - номер канала; [2] - ')'
             {
-                // TODO handler a specific channel
-                int NumberChannel = RxBuffer[indexSOF + 1] - '0';
-                str = "";
-                indexSOF += 3;
-                while(indexSOF < indexEOF)
-                    str += RxBuffer[indexSOF++];
+                int NumberChannel = RxBuffer[1] - '0';
+                int TimeSeparator = RxBuffer.indexOf(':', 0);
 
-                if(NumberChannel == 1)
+                if((TimeSeparator == -1) || (TimeSeparator > indexEOF)) // Уходит к другому пакету
                 {
-                    float ReadingValue = str.toFloat();
+                    str = RxBuffer.mid(3, indexEOF-3);
 
-                    if(fillingIndex == 0)
-                        MainTimer.restart();
-                    else
-                        if((TriggerMode >= 1) && (fillingIndex <= 1)) // Only for fillingIndex == 1
-                    {
-                        if((ListPoint[0].at(0).y() <= TriggerValue) && (TriggerValue <= ReadingValue))
-                        {
-                            ; // ControlPnl->on_StartPause_Button_clicked(); // Выключаем приём
-                        }
-                        else
-                        {
-                            MainTimer.restart();
-                            fillingIndex = 0;
-                        }
-                    }
+                    if(NumberChannel <= Channel_Size)
+                        ConcreteChannels[NumberChannel-1].LastTime += avergePacketTime; // Здесь мы устанавливаем новое значение, на котором отобразиться точка
 
-
-                    if(ListPoint[0].size() < MaxPoint)
-                    {
-                        ListPoint[0] << QPointF(MainTimer.nsecsElapsed() * 0.000001, ReadingValue); //
-                        fillingIndex ++;
-
-                        if(fillingIndex >= MaxPoint)
-                        {
-                            MainTimer.restart();
-                            fillingIndex = 0;
-                        }
-                    }
-                    else
-                    {
-                        if(ListPoint[0].size() != MaxPoint) // Массив стал меньше
-                        {
-                            while(ListPoint[0].size() != MaxPoint)
-                                ListPoint[0].removeLast();
-
-                            if(fillingIndex >= ListPoint[0].size())
-                            {
-                                MainTimer.restart();
-                                fillingIndex = 0;
-                            }
-                        }
-
-                        TempPoint = ListPoint[0].at(fillingIndex);
-                        TempPoint.setX(MainTimer.nsecsElapsed() * 0.000001);
-                        TempPoint.setY(ReadingValue);
-                        ListPoint[0].replace(fillingIndex, TempPoint);
-
-                        fillingIndex ++;
-
-                        if(fillingIndex >= MaxPoint)
-                        {
-                            MainTimer.restart();
-                            fillingIndex = 0;
-
-                            if(TriggerMode == 1)
-                                ControlPnl->on_StartPause_Button_clicked();
-                            // Nothing for TriggerMode == 2
-
-                            LastMinPoint = NowMinPoint;
-                            LastMaxPoint = NowMaxPoint;
-                        }
-                    }
-
-                    if(fillingIndex == 1)
-                    {
-                        NowMinPoint = ReadingValue;
-                        NowMaxPoint = ReadingValue;
-                    }
-
-                    if(ReadingValue < NowMinPoint)
-                        NowMinPoint = ReadingValue;
-
-                    if(ReadingValue > NowMaxPoint)
-                        NowMaxPoint = ReadingValue;
-
-                    //qDebug() << fillingIndex << str.toFloat();
-
+                    deltaTime = 0; // Сдвига в этом случае не будет
                 }
-                if((NumberChannel == 3) && (Channel_Size > 1))
+                else
                 {
-                    if(ListPoint[1].size() <= MaxPoint)
-                        ListPoint[1] << QPointF(MainTimer.elapsed() * 0.001, str.toFloat()); //
-                    else
-                    {
-                        if(ListPoint[0].size() != MaxPoint) // Массив стал меньше
-                        {
-                            while(ListPoint[0].size() != MaxPoint)
-                                ListPoint[0].removeLast();
-                        }
-
-                        TempPoint = ListPoint[1].at(fillingIndex);
-                        TempPoint.setY(str.toFloat());
-                        TempPoint.setY(str.toFloat());
-                        ListPoint[1].replace(fillingIndex, TempPoint);
-                    }
+                    // TODO: Добавить степеное изменение времени
+                    str = RxBuffer.mid(3, TimeSeparator - 3);
+                    strtm = RxBuffer.mid(TimeSeparator, indexEOF - TimeSeparator);
+                    deltaTime = strtm.toFloat();
                 }
+
+                if(NumberChannel <= Channel_Size)
+                    ConcreteChannels[NumberChannel-1].ValueProcessing(str.toFloat(), deltaTime);
             }
             RxBuffer.remove(0, indexEOF);
         }
         else
             break;
-
-#if byte5
-        if(ListPoint[0].size() <= ui->MaxPointSlider->value())
-            ListPoint[0] << QPointF(ListPoint[0].size(), RxBuffer[indexSOF]); //
-        else
-        {
-            TempPoint = ListPoint[0].at(fillingIndex);
-            TempPoint.setY(RxBuffer[indexSOF]);
-            ListPoint[0].replace(fillingIndex, TempPoint);
-        }
-        indexSOF ++;
-#endif
+        RxBuffer.remove(0, indexEOF);
     }
-*/
+
+    MainTimer.restart();
 }
 
 void MainWindow::ChangeGroupSize(int val)
@@ -461,6 +446,8 @@ void MainWindow::on_Connect_action_triggered()
         MainPort->clear();
         MainTimer.restart();
         ui->Connect_action->setText("Disonnect");
+
+        OverloadPointsHandler(); // Запускаем с необходимыми триггер-параметрами
     }
     else
     {

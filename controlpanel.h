@@ -15,7 +15,6 @@ class ControlPanel : public QWidget
 public:
     explicit ControlPanel(QWidget *parent = nullptr);
     ~ControlPanel();
-    int Get_MaxPointSlider();
     int Get_GroupSizeValue();
     void Change_TurnFlowMode(bool FlowMode_Flag);
     void SetTrigValue(float val);
@@ -43,8 +42,9 @@ signals:
     void TestPushButton_Signal();
     void TriggerChanged_Signal(int, float); // arg: Канал, значение триггера
     void ChangeParseMode_Signal(int); // Сообщает об единичном, постоянном или тригерном режиме
-    void ClickHalfTrig_Signal();
-    void AutoSize_Signal();
+    void ClickHalfTrig_Signal(int);
+    void AutoSize_Signal(int);
+    void ChangeMaxPoint(int);
 
 public slots:
     void on_StartPause_Button_clicked();
@@ -73,6 +73,8 @@ private slots:
     void on_AutoSize_Button_clicked();
 
     void on_MaxPoint_Slider_valueChanged(int value);
+
+    void on_ChannelSelection_comboBox_currentIndexChanged(int index);
 
 private:
     Ui::ControlPanel *ui;

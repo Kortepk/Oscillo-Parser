@@ -42,8 +42,11 @@ private:
     void TestFunction();
     void ChangeParsingMode(int mode);
     void TrigerValueChanged(int channel, float val);
-    void CalcHalfTrigger();
-    void AutoSizeClick();
+    void CalcHalfTrigger(int channel);
+    void AutoSizeClick(int channel);
+    void ChangeMaxPointFunc(int pointSize);
+    void SwitchRecieveMaster(bool status);
+    void OverloadPointsHandler();
 
     SettingsDialog *SetDial = nullptr;
     SettingsDialog *m_settings = nullptr;
@@ -51,12 +54,8 @@ private:
     QDialog *ControlPnlDialog = nullptr;
     oscillo_channel ConcreteChannels[10];
 
-    int Channel_Size = 1;
-    int fillingIndex = 0; // Заполняемый индекс
+    int Channel_Size = 1; // Указывает сколько сейчас каналов
     int TriggerMode = 0;  // 0 = Allways; 1 = Single; 2 = By trigger
-    float LastMinPoint = 0; // Запомниает максимальную и минимальную точку на всём графике
-    float LastMaxPoint = 0;
-    float NowMinPoint, NowMaxPoint;
     float TriggerValue = 0;
     bool PortReadFlag = true;
 

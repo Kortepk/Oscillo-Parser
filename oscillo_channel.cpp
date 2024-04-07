@@ -2,8 +2,9 @@
 #include <cmath>
 #include <QValueAxis>
 
-oscillo_channel::oscillo_channel()
-    : Series_pointer(),
+oscillo_channel::oscillo_channel(QObject *parent)
+    : QObject{parent},
+    Series_pointer(),
     ChartView_pointer()
 {
 
@@ -90,4 +91,88 @@ void oscillo_channel::DisconnectSeries()
     delete QGroupBox_pointer;
         // delete Series_pointer[arg1];
         // delete ChartView_pointer[arg1];
+}
+
+void oscillo_channel::SaveLastValue()
+{
+    LastMinPoint = NowMinPoint;
+    LastMaxPoint = NowMaxPoint;
+}
+
+void oscillo_channel::ValueProcessing(float ReadingValue, float DeltaTime)
+{
+    if(fillingIndex >= MaxPoint)
+    {
+        emit OverloadPoints(); // Сообщаем всем, что на этом канале - переполнение
+
+        SaveLastValue();
+    }
+
+    if(!AddPointFlag)
+        return; // Если приём запрещён
+
+    if(ModeMaster && (fillingIndex <= 1)) // Only for fillingIndex == 1
+    {
+        if((ListPoint.at(0).y() <= TriggerValue) && (TriggerValue <= ReadingValue))
+        {
+            emit MasterHandle_Signal(true); // Включаем приём на остальных каналах
+            AddPointFlag = true; // Переводим в режим приёма
+        }
+        else
+        {
+            fillingIndex = 0;
+            DeltaTime = 0;
+            LastTime = 0;
+
+            TempPoint = ListPoint.at(fillingIndex);
+            TempPoint.setX(DeltaTime);
+            TempPoint.setY(ReadingValue);
+            ListPoint.replace(fillingIndex, TempPoint);
+
+            return;
+        }
+    }
+
+    LastTime += DeltaTime;
+
+    if(ListPoint.size() < MaxPoint)
+    {
+        ListPoint << QPointF(LastTime, ReadingValue);
+        fillingIndex ++;
+    }
+    else
+    {
+        if(ListPoint.size() != MaxPoint) // Массив стал меньше
+        {
+            while(ListPoint.size() != MaxPoint)
+                ListPoint.removeLast();
+
+            if(fillingIndex >= ListPoint.size())
+            {
+                LastTime = 0;
+                fillingIndex = 0;
+            }
+        }
+
+        TempPoint = ListPoint.at(fillingIndex);
+        TempPoint.setX(LastTime);
+        TempPoint.setY(ReadingValue);
+        ListPoint.replace(fillingIndex, TempPoint);
+
+        fillingIndex ++;
+    }
+
+    if(fillingIndex == 1) // Дальше ищем минимальную и максимальную точку. Значение по умолчанию - точка с индексом [0]
+    {
+        NowMinPoint = ReadingValue;
+        NowMaxPoint = ReadingValue;
+    }
+
+    if(ReadingValue < NowMinPoint)
+        NowMinPoint = ReadingValue;
+
+    if(ReadingValue > NowMaxPoint)
+        NowMaxPoint = ReadingValue;
+
+    //qDebug() << fillingIndex << str.toFloat();
 }
