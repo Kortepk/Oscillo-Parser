@@ -21,6 +21,7 @@ QSerialPort* MainPort = nullptr;
 
 QByteArray RxBuffer;
 
+QTimer *UpdateGraphTimer;
 QElapsedTimer Maintimer;
 QPointF TempPoint;
 
@@ -82,10 +83,9 @@ void MainWindow::initSettings()
     //dialog.show();
     // Отображение нового окна
 
-    /*QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::UpdateGraph));
-    timer->start(1000/75); // /75
-    */
+    UpdateGraphTimer = new QTimer(this);
+    connect(UpdateGraphTimer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::UpdateGraph));
+    UpdateGraphTimer->start(1000/75); // /75
 }
 
 void MainWindow::UpdateGraph(void)
@@ -116,6 +116,7 @@ void MainWindow::initActionsConnections()
     connect(ControlPnl, &ControlPanel::ClickHalfTrig_Signal, this, &MainWindow::CalcHalfTrigger);
     connect(ControlPnl, &ControlPanel::AutoSize_Signal, this, &MainWindow::AutoSizeClick);
     connect(ControlPnl, &ControlPanel::ChangeMaxPoint, this, &MainWindow::ChangeMaxPointFunc);
+    connect(ControlPnl, &ControlPanel::ChangeUpdateSet, this, &MainWindow::ChangePointUpdate);
 
     connect(ControlPnlDialog, &QDialog::finished, this, &MainWindow::CloseFlowPanel);
 
@@ -123,6 +124,20 @@ void MainWindow::initActionsConnections()
     {
         connect(&ConcreteChannels[i], &oscillo_channel::MasterHandle_Signal, this, &MainWindow::SwitchRecieveMaster);
         connect(&ConcreteChannels[i], &oscillo_channel::OverloadPoints, this, &MainWindow::OverloadPointsHandler);
+    }
+}
+
+void MainWindow::ChangePointUpdate(int state, int value)
+{
+    UpdWhenFill = state;
+
+    if(UpdWhenFill)
+    {
+        UpdateGraphTimer->stop();
+    }
+    else
+    {
+        UpdateGraphTimer->start(1000/value);
     }
 }
 
@@ -184,16 +199,14 @@ void MainWindow::AutoSizeClick(int channel)
 
     channel -= 1;
 
-    const static float LastMinPoint = ConcreteChannels[channel].LastMinPoint;
-    const static float LastMaxPoint = ConcreteChannels[channel].LastMaxPoint;
-
-    qDebug() << LastMaxPoint << LastMinPoint;
-
+    const float LastMinPoint = ConcreteChannels[channel].LastMinPoint;
+    const float LastMaxPoint = ConcreteChannels[channel].LastMaxPoint;
+    const float LastMaxTime  = ConcreteChannels[channel].LastMaxTime;
 
     if(LastMinPoint != LastMaxPoint) // Есть хоть какие-то значения
     {
         float HalfVal = (LastMaxPoint + LastMinPoint)/2;
-        ControlPnl->SetDialPositionScale(12.5, HalfVal, 2.5, (LastMaxPoint - LastMinPoint) * 1.05);
+        ControlPnl->SetDialPositionScale(5, HalfVal, LastMaxTime, (LastMaxPoint - LastMinPoint) * 1.05);
     }
 }
 
@@ -206,28 +219,36 @@ void MainWindow::CalcHalfTrigger(int channel)
 
     float HalfVal = (ConcreteChannels[channel].LastMaxPoint + ConcreteChannels[channel].LastMinPoint)/2;
     ControlPnl->SetTrigValue(HalfVal);
+
+    MainWindow::ChangeParsingMode(TriggerMode, channel + 1);
 }
 
 void MainWindow::TrigerValueChanged(int channel, float val)
 {
     TriggerValue = val;
-#if 0
-    Series_pointer[9] = new QtCharts::QLineSeries();
 
-    ListPoint[9] << QPointF(0, val) << QPointF(100, val);
-
-    Series_pointer[9]->replace(ListPoint[9]);
-
-    Series_pointer[9]->setColor(QColor(255, 128, 0));
-    ChartView_pointer[channel]->chart()->addSeries(Series_pointer[9]);
-#endif
-    qDebug() << val;
+    MainWindow::ChangeParsingMode(TriggerMode, channel);
 }
 
-void MainWindow::ChangeParsingMode(int mode)
+void MainWindow::ChangeParsingMode(int mode, int channel)
 {
     TriggerMode = mode;
+
+    if(channel > Channel_Size) // Валидация на всякий случий
+        return;
+
+    //qDebug() << TriggerValue << channel;
+
+    channel -= 1;
+
+    ConcreteChannels[channel].TriggerValue = TriggerValue;
+    if(mode > 0) // По триггеру
+        ConcreteChannels[channel].ModeMaster = true;
+    else
+        ConcreteChannels[channel].ModeMaster = false;
+
     OverloadPointsHandler(); // Обнуляем состояния
+
 }
 
 void MainWindow::TestFunction()
@@ -247,7 +268,7 @@ void MainWindow::ChangeGraph(int channel)//float shift_x, float shift_y, float s
     float WindSizeX = (ControlPnl->ViewGraphSet.GraphScaleX * ControlPnl->ViewGraphSet.ScalePrefixX);
     if(channel <= 0) // Если мы производим настройку по времени
     {   // (0.0; 1.0)  * (max_x - min_x)
-        ControlPnl->ViewGraphSet.ShiftMid_x = ControlPnl->ViewGraphSet.GraphShiftX *WindSizeX / 10.f + WindSizeX * ControlPnl->ViewGraphSet.DialTurnoversX;
+        ControlPnl->ViewGraphSet.ShiftMid_x = ControlPnl->ViewGraphSet.GraphShiftX * WindSizeX / 10.f + WindSizeX * ControlPnl->ViewGraphSet.DialTurnoversX; // 1 оборот - 1 крутка экрана
     }
 
     float min_x = ControlPnl->ViewGraphSet.ShiftMid_x - WindSizeX/2,
@@ -382,8 +403,6 @@ void MainWindow::ChangeGroupSize(int val)
 
 void MainWindow::CounterChannel_Changed(int arg1)
 {
-    qDebug() << __PRETTY_FUNCTION__ << arg1;
-
     if(Channel_Size < arg1) // Количество каналов увеличилось
     {
         const int chn = Channel_Size;

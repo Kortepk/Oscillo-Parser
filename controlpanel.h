@@ -41,10 +41,11 @@ signals:
     void StartPause_Signal();
     void TestPushButton_Signal();
     void TriggerChanged_Signal(int, float); // arg: Канал, значение триггера
-    void ChangeParseMode_Signal(int); // Сообщает об единичном, постоянном или тригерном режиме
+    void ChangeParseMode_Signal(int, int); // Сообщает об единичном, постоянном или тригерном режиме
     void ClickHalfTrig_Signal(int);
     void AutoSize_Signal(int);
     void ChangeMaxPoint(int);
+    void ChangeUpdateSet(int, int);
 
 public slots:
     void on_StartPause_Button_clicked();
@@ -75,6 +76,10 @@ private slots:
     void on_MaxPoint_Slider_valueChanged(int value);
 
     void on_ChannelSelection_comboBox_currentIndexChanged(int index);
+
+    void on_UpdateFill_CheckBox_stateChanged(int arg1);
+
+    void on_UpdateFill_spinBox_valueChanged(int arg1);
 
 private:
     Ui::ControlPanel *ui;

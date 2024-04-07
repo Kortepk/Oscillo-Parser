@@ -35,6 +35,7 @@ public:
 
     float LastMinPoint = 0; // Запомниает максимальную и минимальную точку на всём графике
     float LastMaxPoint = 0;
+    float LastMaxTime = 0;
 
 signals:
     void MasterHandle_Signal(bool status); // Master сообщает slaves о необходимости начать/прекратить сбор данных

@@ -601,7 +601,7 @@ background-color: rgb(255, 156, 156);
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>120</y>
+         <y>80</y>
          <width>109</width>
          <height>101</height>
         </rect>
@@ -648,7 +648,7 @@ background-color: rgb(255, 156, 156);
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>230</y>
+         <y>190</y>
          <width>109</width>
          <height>24</height>
         </rect>
@@ -661,7 +661,7 @@ background-color: rgb(255, 156, 156);
        <property name="geometry">
         <rect>
          <x>120</x>
-         <y>200</y>
+         <y>140</y>
          <width>109</width>
          <height>22</height>
         </rect>
@@ -682,8 +682,8 @@ background-color: rgb(255, 156, 156);
       <widget class="QSlider" name="GroupSize_Slider">
        <property name="geometry">
         <rect>
-         <x>120</x>
-         <y>80</y>
+         <x>110</x>
+         <y>220</y>
          <width>107</width>
          <height>22</height>
         </rect>
@@ -705,7 +705,7 @@ background-color: rgb(255, 156, 156);
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>80</y>
+         <y>220</y>
          <width>107</width>
          <height>24</height>
         </rect>
@@ -826,7 +826,7 @@ channels</string>
        <property name="geometry">
         <rect>
          <x>123</x>
-         <y>165</y>
+         <y>110</y>
          <width>101</width>
          <height>31</height>
         </rect>
@@ -847,7 +847,7 @@ channels</string>
        <property name="geometry">
         <rect>
          <x>150</x>
-         <y>230</y>
+         <y>170</y>
          <width>51</width>
          <height>22</height>
         </rect>
@@ -863,6 +863,40 @@ channels</string>
        </property>
        <property name="value">
         <number>1000</number>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="UpdateFill_CheckBox">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>20</y>
+         <width>91</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Updating 
+when filling
+out</string>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="UpdateFill_spinBox">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>80</y>
+         <width>51</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>200</number>
+       </property>
+       <property name="value">
+        <number>75</number>
        </property>
       </widget>
      </widget>

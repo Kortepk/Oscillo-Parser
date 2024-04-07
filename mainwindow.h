@@ -40,13 +40,14 @@ private:
     void ChangeGraph(int channel);
     void StartPauseReadData();
     void TestFunction();
-    void ChangeParsingMode(int mode);
+    void ChangeParsingMode(int mode, int channel);
     void TrigerValueChanged(int channel, float val);
     void CalcHalfTrigger(int channel);
     void AutoSizeClick(int channel);
     void ChangeMaxPointFunc(int pointSize);
     void SwitchRecieveMaster(bool status);
     void OverloadPointsHandler();
+    void ChangePointUpdate(int state, int value);
 
     SettingsDialog *SetDial = nullptr;
     SettingsDialog *m_settings = nullptr;
@@ -58,7 +59,7 @@ private:
     int TriggerMode = 0;  // 0 = Allways; 1 = Single; 2 = By trigger
     float TriggerValue = 0;
     bool PortReadFlag = true;
-
+    bool UpdWhenFill = false; // updating when filling out
 
 };
 #endif // MAINWINDOW_H

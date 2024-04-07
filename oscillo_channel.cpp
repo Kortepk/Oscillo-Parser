@@ -95,6 +95,9 @@ void oscillo_channel::DisconnectSeries()
 
 void oscillo_channel::SaveLastValue()
 {
+    if(ListPoint.size() > 0)
+        LastMaxTime = ListPoint.last().x(); // Получаем последнее значение
+
     LastMinPoint = NowMinPoint;
     LastMaxPoint = NowMaxPoint;
 }
@@ -104,8 +107,6 @@ void oscillo_channel::ValueProcessing(float ReadingValue, float DeltaTime)
     if(fillingIndex >= MaxPoint)
     {
         emit OverloadPoints(); // Сообщаем всем, что на этом канале - переполнение
-
-        SaveLastValue();
     }
 
     if(!AddPointFlag)
@@ -128,7 +129,7 @@ void oscillo_channel::ValueProcessing(float ReadingValue, float DeltaTime)
             TempPoint.setX(DeltaTime);
             TempPoint.setY(ReadingValue);
             ListPoint.replace(fillingIndex, TempPoint);
-
+            fillingIndex ++;
             return;
         }
     }
