@@ -161,9 +161,6 @@ void MainWindow::OverloadPointsHandler()
                 break;
             }
         case 1:
-            {
-                ConcreteChannels[i].AddPointFlag = false; // Ставим на паузу
-            }
         case 2:
             {
                 if(ConcreteChannels[i].ModeMaster) // Если обнуляемый канал - мастер, то он продолжаем приём
@@ -174,6 +171,8 @@ void MainWindow::OverloadPointsHandler()
             }
         }
     }
+    if((TriggerMode == 1) && PortReadFlag)
+        ControlPnl->on_StartPause_Button_clicked(); // Ставим на паузу
 }
 
 
@@ -199,13 +198,14 @@ void MainWindow::AutoSizeClick(int channel)
 
     channel -= 1;
 
-    const float LastMinPoint = ConcreteChannels[channel].LastMinPoint;
-    const float LastMaxPoint = ConcreteChannels[channel].LastMaxPoint;
+    float LastMinPoint = ConcreteChannels[channel].LastMinPoint;
+    float LastMaxPoint = ConcreteChannels[channel].LastMaxPoint;
     const float LastMaxTime  = ConcreteChannels[channel].LastMaxTime;
 
     if(LastMinPoint != LastMaxPoint) // Есть хоть какие-то значения
     {
         float HalfVal = (LastMaxPoint + LastMinPoint)/2;
+        qDebug() << channel << ")" << LastMaxPoint <<  LastMinPoint << LastMaxTime;
         ControlPnl->SetDialPositionScale(5, HalfVal, LastMaxTime, (LastMaxPoint - LastMinPoint) * 1.05);
     }
 }
@@ -232,12 +232,13 @@ void MainWindow::TrigerValueChanged(int channel, float val)
 
 void MainWindow::ChangeParsingMode(int mode, int channel)
 {
-    TriggerMode = mode;
+    if(mode >= 0)
+        TriggerMode = mode;
 
     if(channel > Channel_Size) // Валидация на всякий случий
         return;
 
-    //qDebug() << TriggerValue << channel;
+    qDebug() << TriggerMode <<  TriggerValue << channel;
 
     channel -= 1;
 
@@ -378,14 +379,13 @@ void MainWindow::readData()
                 {
                     // TODO: Добавить степеное изменение времени
                     str = RxBuffer.mid(3, TimeSeparator - 3);
-                    strtm = RxBuffer.mid(TimeSeparator, indexEOF - TimeSeparator);
+                    strtm = RxBuffer.mid(TimeSeparator+1, indexEOF - TimeSeparator-1);
                     deltaTime = strtm.toFloat();
                 }
 
                 if(NumberChannel <= Channel_Size)
                     ConcreteChannels[NumberChannel-1].ValueProcessing(str.toFloat(), deltaTime);
             }
-            RxBuffer.remove(0, indexEOF);
         }
         else
             break;

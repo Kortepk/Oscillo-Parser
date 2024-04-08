@@ -206,6 +206,8 @@ void ControlPanel::on_ChannalPosition_dial_valueChanged(int value)
             ViewGraphSet.DialTurnoversY --;
         }
 
+    qDebug() << ViewGraphSet.DialTurnoversY << val_fl;
+
     ViewGraphSet.ChannelShiftY = val_fl;
 
     int chan_num = ui->ChannelSelection_comboBox->currentData().value<int>();
@@ -314,28 +316,28 @@ void ControlPanel::on_pushButtonTest_clicked()
 
 void ControlPanel::on_Allways_rb_clicked()
 {
-    const static int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
+    const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
     emit ChangeParseMode_Signal(0, chan_num);
 }
 
 
 void ControlPanel::on_Single_rb_clicked()
 {
-    const static int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
+    const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
     emit ChangeParseMode_Signal(1, chan_num);
 }
 
 
 void ControlPanel::on_Trigger_rb_clicked()
 {
-    const static int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
+    const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
     emit ChangeParseMode_Signal(2, chan_num);
 }
 
 
 void ControlPanel::on_TriggerPosition_dial_valueChanged(int value)
 {
-    const static int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
+    const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
     float fl_val = value / 100.f;
     emit TriggerChanged_Signal(chan_num, fl_val);
 }
@@ -343,7 +345,7 @@ void ControlPanel::on_TriggerPosition_dial_valueChanged(int value)
 
 void ControlPanel::on_SetHalf_Button_clicked()
 {
-    const static int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
+    const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
     emit ClickHalfTrig_Signal(chan_num);
 }
 
@@ -371,12 +373,27 @@ void getMantissaAndExponent(float num, float& mantissa, int& exponent)
 
 void ControlPanel::SetDialPositionScale(float x, float y, float dx, float dy)
 {
+    qDebug() << x << y << dx << dy;
+
     ViewGraphSet.DialTurnoversX = x/10;
     ViewGraphSet.DialTurnoversY = y/10;
     x = x - ViewGraphSet.DialTurnoversX * 10;
     y = y - ViewGraphSet.DialTurnoversY * 10;
 
+    // qDebug() << ViewGraphSet.DialTurnoversX << ViewGraphSet.DialTurnoversY;
+
+    if(x < 0)
+    {
+        ViewGraphSet.DialTurnoversX = -1;
+    }
+
+    if(y < 0)
+    {
+        ViewGraphSet.DialTurnoversY = -1;
+    }
+
     ui->GraphPosition_dial->setValue(x * 100);
+
     ui->ChannalPosition_dial->setValue(y * 100);
 
     float mantissa;
@@ -384,10 +401,13 @@ void ControlPanel::SetDialPositionScale(float x, float y, float dx, float dy)
 
     getMantissaAndExponent(dx, mantissa, degree); // 72.4545 : 7.245 1
 
+    // qDebug() << "ms" << mantissa << degree;
+
     ViewGraphSet.ScalePrefixX = pow(10, degree);
     ui->PrefixScaleX_comboBox->setCurrentIndex(3 - degree);
 
     ui->GraphScale_dial->setValue(mantissa * 100);
+
     ui->ChannalScale_dial->setValue(dy * 100);
 
     // ViewGraphSet.GraphShiftX = x; //  Не обязательно, т.к. создаться событие valueChanged
@@ -404,8 +424,7 @@ void ControlPanel::on_MaxPoint_Slider_valueChanged(int value)
 
 void ControlPanel::on_ChannelSelection_comboBox_currentIndexChanged(int index)
 {
-    //qDebug() << ui->ChannelSelection_comboBox->currentData().value<int>();
-    // TODO add SIGNAL load preferences
+
 }
 
 
@@ -428,5 +447,12 @@ void ControlPanel::on_UpdateFill_spinBox_valueChanged(int arg1)
     {
         emit ChangeUpdateSet(0, ui->UpdateFill_spinBox->value());
     }
+}
+
+
+void ControlPanel::on_TrigChannel_comboBox_currentIndexChanged(int index)
+{
+    const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
+    emit ChangeParseMode_Signal(-1, chan_num);
 }
 

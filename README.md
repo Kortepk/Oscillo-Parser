@@ -20,3 +20,6 @@ The timestamp is manually determined by the user for each point. The fewer chara
 <img src="img/5 bytes.png" height = "150">
 
 Tpd = 1 secons
+
+
+For virtual com (emulation transfer of data from a computer), you can use com0com to create com and then bundle them as a null modem. In this way, I was able to create connected ports com11 and com12, and later connect com11 for the oscilloscope, com12 for packet transmission (an application similar to a terminal)

@@ -1,7 +1,7 @@
 #include "oscillo_channel.h"
 #include <cmath>
 #include <QValueAxis>
-
+//#include <QDebug>
 oscillo_channel::oscillo_channel(QObject *parent)
     : QObject{parent},
     Series_pointer(),
@@ -112,9 +112,9 @@ void oscillo_channel::ValueProcessing(float ReadingValue, float DeltaTime)
     if(!AddPointFlag)
         return; // Если приём запрещён
 
-    if(ModeMaster && (fillingIndex <= 1)) // Only for fillingIndex == 1
+    if(ModeMaster && (fillingIndex == 1)) // Only for fillingIndex == 1
     {
-        if((ListPoint.at(0).y() <= TriggerValue) && (TriggerValue <= ReadingValue))
+        if((ListPoint.begin()->y() <= TriggerValue) && (TriggerValue <= ReadingValue))
         {
             emit MasterHandle_Signal(true); // Включаем приём на остальных каналах
             AddPointFlag = true; // Переводим в режим приёма

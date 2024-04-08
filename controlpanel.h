@@ -68,18 +68,13 @@ private slots:
     void on_Single_rb_clicked();
     void on_Trigger_rb_clicked();
     void on_TriggerPosition_dial_valueChanged(int value);
-
     void on_SetHalf_Button_clicked();
-
     void on_AutoSize_Button_clicked();
-
     void on_MaxPoint_Slider_valueChanged(int value);
-
     void on_ChannelSelection_comboBox_currentIndexChanged(int index);
-
     void on_UpdateFill_CheckBox_stateChanged(int arg1);
-
     void on_UpdateFill_spinBox_valueChanged(int arg1);
+    void on_TrigChannel_comboBox_currentIndexChanged(int index);
 
 private:
     Ui::ControlPanel *ui;
