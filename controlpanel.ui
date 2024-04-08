@@ -446,7 +446,7 @@ background-color: rgb(255, 156, 156);
          <x>10</x>
          <y>10</y>
          <width>95</width>
-         <height>151</height>
+         <height>181</height>
         </rect>
        </property>
        <property name="title">
@@ -501,7 +501,7 @@ background-color: rgb(255, 156, 156);
          <x>110</x>
          <y>10</y>
          <width>101</width>
-         <height>151</height>
+         <height>181</height>
         </rect>
        </property>
        <property name="title">
@@ -536,24 +536,50 @@ background-color: rgb(255, 156, 156);
          </widget>
         </item>
         <item>
-         <widget class="QDial" name="TriggerPosition_dial">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QSlider" name="TriggerPosition_Slider">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="minimum">
+             <number>-1000</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="TriggerPosition_Box">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>false</bool>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
           <property name="minimum">
-           <number>-1000</number>
+           <double>-10.000000000000000</double>
           </property>
           <property name="maximum">
-           <number>1000</number>
-          </property>
-          <property name="pageStep">
-           <number>10</number>
-          </property>
-          <property name="wrapping">
-           <bool>true</bool>
-          </property>
-          <property name="notchTarget">
-           <double>125.000000000000000</double>
-          </property>
-          <property name="notchesVisible">
-           <bool>true</bool>
+           <double>10.000000000000000</double>
           </property>
          </widget>
         </item>

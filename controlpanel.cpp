@@ -334,14 +334,14 @@ void ControlPanel::on_Trigger_rb_clicked()
     emit ChangeParseMode_Signal(2, chan_num);
 }
 
-
+#if 0
 void ControlPanel::on_TriggerPosition_dial_valueChanged(int value)
 {
     const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
     float fl_val = value / 100.f;
     emit TriggerChanged_Signal(chan_num, fl_val);
 }
-
+#endif
 
 void ControlPanel::on_SetHalf_Button_clicked()
 {
@@ -351,7 +351,7 @@ void ControlPanel::on_SetHalf_Button_clicked()
 
 void ControlPanel::SetTrigValue(float val)
 {
-    ui->TriggerPosition_dial->setValue(100 * val);
+    ui->TriggerPosition_Slider->setValue(100 * val);
 }
 
 void ControlPanel::on_AutoSize_Button_clicked()
@@ -454,5 +454,19 @@ void ControlPanel::on_TrigChannel_comboBox_currentIndexChanged(int index)
 {
     const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
     emit ChangeParseMode_Signal(-1, chan_num);
+}
+
+
+void ControlPanel::on_TriggerPosition_Slider_valueChanged(int value)
+{
+    const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
+    float fl_val = value / 100.f;
+    ui->TriggerPosition_Box->setValue(fl_val);
+    emit TriggerChanged_Signal(chan_num, fl_val);
+}
+
+void ControlPanel::on_TriggerPosition_Box_editingFinished()
+{
+    ui->TriggerPosition_Slider->setValue(ui->TriggerPosition_Box->value() * 100);
 }
 
