@@ -46,6 +46,7 @@ signals:
     void AutoSize_Signal(int);
     void ChangeMaxPoint(int);
     void ChangeUpdateSet(int, int);
+    void LoadDialPosition(int, int, int&, int&, int&); // channel, lastchannel, shift, shift turn, scale
 
 public slots:
     void on_StartPause_Button_clicked();
@@ -86,6 +87,7 @@ private:
 
     int ChannalSize = 1;
     bool KnobBlockFlag = false;
+    int LastIndex = 0;
 };
 
 #endif // CONTROLPANEL_H

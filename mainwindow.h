@@ -48,6 +48,7 @@ private:
     void SwitchRecieveMaster(bool status);
     void OverloadPointsHandler();
     void ChangePointUpdate(int state, int value);
+    void LoadSetDial(int chn, int lastchn, int& ShiftY, int& DialTurn, int& ScaleY);
 
     SettingsDialog *SetDial = nullptr;
     SettingsDialog *m_settings = nullptr;

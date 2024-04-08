@@ -37,6 +37,10 @@ public:
     float LastMaxPoint = 0;
     float LastMaxTime = 0;
 
+    int ChannelScaleY = 1;
+    int ChannelShiftY = 0;
+    int ChannelTurnY;
+
 signals:
     void MasterHandle_Signal(bool status); // Master сообщает slaves о необходимости начать/прекратить сбор данных
     void OverloadPoints();                 // Сообщает всем остальным, что произошло переполнение буффера, и необходима синхронизация

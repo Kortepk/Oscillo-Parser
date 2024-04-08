@@ -117,6 +117,7 @@ void MainWindow::initActionsConnections()
     connect(ControlPnl, &ControlPanel::AutoSize_Signal, this, &MainWindow::AutoSizeClick);
     connect(ControlPnl, &ControlPanel::ChangeMaxPoint, this, &MainWindow::ChangeMaxPointFunc);
     connect(ControlPnl, &ControlPanel::ChangeUpdateSet, this, &MainWindow::ChangePointUpdate);
+    connect(ControlPnl, &ControlPanel::LoadDialPosition, this, &MainWindow::LoadSetDial);
 
     connect(ControlPnlDialog, &QDialog::finished, this, &MainWindow::CloseFlowPanel);
 
@@ -126,6 +127,18 @@ void MainWindow::initActionsConnections()
         connect(&ConcreteChannels[i], &oscillo_channel::OverloadPoints, this, &MainWindow::OverloadPointsHandler);
     }
 }
+
+void MainWindow::LoadSetDial(int chn, int lastchn, int& DialShiftY, int& DialTurn, int& DialScaleY)
+{
+    ConcreteChannels[lastchn].ChannelShiftY = DialShiftY; // Запоминаем старые значения для старого канала
+    ConcreteChannels[lastchn].ChannelScaleY = DialScaleY;
+    ConcreteChannels[lastchn].ChannelTurnY  = DialTurn;
+
+    DialShiftY = ConcreteChannels[chn].ChannelShiftY; // Ставим новыее значения
+    DialScaleY = ConcreteChannels[chn].ChannelScaleY;
+    DialTurn =   ConcreteChannels[chn].ChannelTurnY;
+}
+
 
 void MainWindow::ChangePointUpdate(int state, int value)
 {
@@ -205,7 +218,6 @@ void MainWindow::AutoSizeClick(int channel)
     if(LastMinPoint != LastMaxPoint) // Есть хоть какие-то значения
     {
         float HalfVal = (LastMaxPoint + LastMinPoint)/2;
-        qDebug() << channel << ")" << LastMaxPoint <<  LastMinPoint << LastMaxTime;
         ControlPnl->SetDialPositionScale(5, HalfVal, LastMaxTime, (LastMaxPoint - LastMinPoint) * 1.05);
     }
 }
@@ -238,7 +250,7 @@ void MainWindow::ChangeParsingMode(int mode, int channel)
     if(channel > Channel_Size) // Валидация на всякий случий
         return;
 
-    qDebug() << TriggerMode <<  TriggerValue << channel;
+    //qDebug() << TriggerMode <<  TriggerValue << channel;
 
     channel -= 1;
 

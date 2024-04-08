@@ -424,7 +424,20 @@ void ControlPanel::on_MaxPoint_Slider_valueChanged(int value)
 
 void ControlPanel::on_ChannelSelection_comboBox_currentIndexChanged(int index)
 {
+    int ShiftY = ui->ChannalPosition_dial->value(),
+        ScaleY = ui->ChannalScale_dial->value(),
+        DialTurn = ViewGraphSet.DialTurnoversY;
 
+    qDebug() << "a)"<< ShiftY << ScaleY;
+
+    emit LoadDialPosition(index, LastIndex, ShiftY, DialTurn, ScaleY);
+
+    qDebug() << "b)"<<  ShiftY << ScaleY;
+
+    LastIndex = index;
+    ViewGraphSet.DialTurnoversY = DialTurn;
+    ui->ChannalPosition_dial->setValue(ShiftY);
+    ui->ChannalScale_dial->setValue(ScaleY);
 }
 
 
