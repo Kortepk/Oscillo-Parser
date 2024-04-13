@@ -4,8 +4,7 @@
 //#include <QDebug>
 oscillo_channel::oscillo_channel(QObject *parent)
     : QObject{parent},
-    Series_pointer(),
-    ChartView_pointer()
+    Series_pointer()
 {
 
 
@@ -14,6 +13,7 @@ oscillo_channel::oscillo_channel(QObject *parent)
 void oscillo_channel::initSine()
 {
     Series_pointer.clear();
+    ListPoint.clear();
 
     float i;
 
@@ -24,9 +24,10 @@ void oscillo_channel::initSine()
 
     Series_pointer.replace(ListPoint);
 
-    ChartView_pointer.chart()->legend()->hide();
-    ChartView_pointer.chart()->addSeries(&Series_pointer);
-    ChartView_pointer.chart()->createDefaultAxes();
+    ChartView_pointer = new QtCharts::QChartView();
+    ChartView_pointer->chart()->legend()->hide();
+    ChartView_pointer->chart()->addSeries(&Series_pointer);
+    ChartView_pointer->chart()->createDefaultAxes();
 }
 
 void oscillo_channel::ReplaceDots()
@@ -36,7 +37,7 @@ void oscillo_channel::ReplaceDots()
 
 void oscillo_channel::SetGraphAxis(float *min_x, float *min_y, float *max_x, float *max_y)
 {
-    QtCharts::QChart *chart = ChartView_pointer.chart();
+    QtCharts::QChart *chart = ChartView_pointer->chart();
 
     // Удаление предыдущей оси X и отдельно Y
     QtCharts::QAbstractAxis *oldAxisX = chart->axes(Qt::Horizontal).at(0); // Получаем первую ось X
@@ -82,13 +83,16 @@ void oscillo_channel::CreateGroupBox(QString str, int gsize)
 
 void oscillo_channel::ConnectSeries()
 {
-    ChartView_pointer.chart()->addSeries(&Series_pointer);
-    ChartView_pointer.chart()->createDefaultAxes();
-    ChartView_pointer.chart()->legend()->hide();
+    ChartView_pointer->chart()->addSeries(&Series_pointer);
+    ChartView_pointer->chart()->createDefaultAxes();
+    ChartView_pointer->chart()->legend()->hide();
 }
 void oscillo_channel::DisconnectSeries()
 {
-    delete QGroupBox_pointer;
+    QGroupBox_pointer->hide();
+    //delete ChartView_pointer;
+    //ChartView_pointer = nullptr;
+    //delete QGroupBox_pointer;
         // delete Series_pointer[arg1];
         // delete ChartView_pointer[arg1];
 }
@@ -176,4 +180,9 @@ void oscillo_channel::ValueProcessing(float ReadingValue, float DeltaTime)
         NowMaxPoint = ReadingValue;
 
     //qDebug() << fillingIndex << str.toFloat();
+}
+ void oscillo_channel::DeleteElements()
+{
+
+    //delete QGroupBox_pointer;
 }

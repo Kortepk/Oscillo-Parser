@@ -23,9 +23,10 @@ public:
     void DisconnectSeries();
     void ValueProcessing(float ReadingValue, float DeltaTime);
     void SaveLastValue();
+    void DeleteElements();
 
     QGroupBox *QGroupBox_pointer = nullptr; // Массив указателей на GroupBox
-    QtCharts::QChartView ChartView_pointer; // Массив графиков
+    QtCharts::QChartView *ChartView_pointer = nullptr; // Массив графиков
     int MaxPoint = 1000;
     int fillingIndex = 0;     // Если в канале индекс выйдет за границы, то мы должно синхронизировать и другие каналы, сообщив это
     int TriggerValue = 0;     // Число, по которому срабатывает триггер

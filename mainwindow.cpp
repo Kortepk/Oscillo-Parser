@@ -63,7 +63,7 @@ void MainWindow::initSettings()
 
 
     QVBoxLayout *groupBoxLayout = new QVBoxLayout();
-    groupBoxLayout->addWidget(&ConcreteChannels[0].ChartView_pointer); // Создаём текст внутри GroupBox
+    groupBoxLayout->addWidget(ConcreteChannels[0].ChartView_pointer); // Создаём текст внутри GroupBox
 
     delete ui->Channel1_groupBox->layout(); // Удаляем layout от дизайнера
     ui->Channel1_groupBox->setLayout(groupBoxLayout);
@@ -300,7 +300,7 @@ void MainWindow::ChangeGraph(int channel)//float shift_x, float shift_y, float s
     else
         for(int i = 0; i < Channel_Size; i ++)
         {
-            QtCharts::QAbstractAxis *oldAxisY = ConcreteChannels[i].ChartView_pointer.chart()->axes(Qt::Vertical).at(0);
+            QtCharts::QAbstractAxis *oldAxisY = ConcreteChannels[i].ChartView_pointer->chart()->axes(Qt::Vertical).at(0);
 
             QtCharts::QValueAxis  * axisY = static_cast<QtCharts::QValueAxis * >(oldAxisY);
             min_y = axisY->min();
@@ -418,22 +418,29 @@ void MainWindow::CounterChannel_Changed(int arg1)
     {
         const int chn = Channel_Size;
 
-        ConcreteChannels[chn].CreateGroupBox("Channel " + QString::number(arg1), ControlPnl->Get_GroupSizeValue());
+        if(ConcreteChannels[chn].QGroupBox_pointer ==  nullptr)
+        {
+            if(!MainPort->isOpen())
+                ConcreteChannels[chn].initSine();
+            else
+                ConcreteChannels[chn].ConnectSeries();
 
-        if(!MainPort->isOpen())
-            ConcreteChannels[chn].initSine();
+            ConcreteChannels[chn].CreateGroupBox("Channel " + QString::number(arg1), ControlPnl->Get_GroupSizeValue());
+            // QLabel *label = new QLabel("Label inside Group Box");
+            QVBoxLayout *groupBoxLayout = new QVBoxLayout();
+            groupBoxLayout->addWidget(ConcreteChannels[chn].ChartView_pointer); // Создаём текст внутри GroupBox
+            ConcreteChannels[chn].QGroupBox_pointer->setLayout(groupBoxLayout);
+
+            ui->Oscillo_Channel_Area_verticalLayout->addWidget(ConcreteChannels[chn].QGroupBox_pointer); // Добавляем GB
+
+            ui->Oscillo_Channel_Area_verticalLayout->removeItem(refOscilloSpacer);
+            ui->Oscillo_Channel_Area_verticalLayout->addItem(refOscilloSpacer);
+        }
         else
-            ConcreteChannels[chn].ConnectSeries();
+        {
+            ConcreteChannels[chn].QGroupBox_pointer->show();
 
-        // QLabel *label = new QLabel("Label inside Group Box");
-        QVBoxLayout *groupBoxLayout = new QVBoxLayout();
-        groupBoxLayout->addWidget(&ConcreteChannels[chn].ChartView_pointer); // Создаём текст внутри GroupBox
-        ConcreteChannels[chn].QGroupBox_pointer->setLayout(groupBoxLayout);
-
-        ui->Oscillo_Channel_Area_verticalLayout->addWidget(ConcreteChannels[chn].QGroupBox_pointer); // Добавляем GB
-
-        ui->Oscillo_Channel_Area_verticalLayout->removeItem(refOscilloSpacer);
-        ui->Oscillo_Channel_Area_verticalLayout->addItem(refOscilloSpacer);
+        }
     }
     else
     {
@@ -505,6 +512,11 @@ void MainWindow::on_PortSettings_action_triggered()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    for(int i = 0; i<=10; i++)
+    {
+        ConcreteChannels[i].DeleteElements();
+    }
+
     if(SetDial != nullptr)
         delete SetDial;
     if(ControlPnlDialog != nullptr)
