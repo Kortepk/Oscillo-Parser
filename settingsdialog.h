@@ -36,6 +36,8 @@ public:
 private slots:
     void on_Apply_pushButton_clicked();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::SettingsDialog *ui;
     void fillPortsParameters(void);

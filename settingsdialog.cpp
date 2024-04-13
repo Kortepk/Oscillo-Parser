@@ -189,3 +189,9 @@ void SettingsDialog::on_Apply_pushButton_clicked()
     hide();
 }
 
+
+void SettingsDialog::on_pushButton_clicked()
+{
+    fillPortsInfo();
+}
+

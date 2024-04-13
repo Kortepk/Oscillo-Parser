@@ -94,6 +94,13 @@
         <item row="0" column="0">
          <widget class="QComboBox" name="serialPortInfoListBox"/>
         </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>Update list</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
