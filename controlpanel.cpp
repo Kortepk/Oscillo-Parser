@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QTimer>
 #include <cmath>
+#include <QColorDialog>
+#include <QString>
 
 bool TurnFlowMode_Flag = false;
 
@@ -426,16 +428,14 @@ void ControlPanel::on_ChannelSelection_comboBox_currentIndexChanged(int index)
         ScaleY = ui->ChannalScale_dial->value(),
         DialTurn = ViewGraphSet.DialTurnoversY;
 
-    qDebug() << "a)"<< ShiftY << ScaleY;
-
-    emit LoadDialPosition(index, LastIndex, ShiftY, DialTurn, ScaleY);
-
-    qDebug() << "b)"<<  ShiftY << ScaleY;
+    emit LoadDialPosition(index, LastIndex, ShiftY, DialTurn, ScaleY, NowChannelColorButton);
 
     LastIndex = index;
     ViewGraphSet.DialTurnoversY = DialTurn;
     ui->ChannalPosition_dial->setValue(ShiftY);
     ui->ChannalScale_dial->setValue(ScaleY);
+
+    SetChannelColor(NowChannelColorButton);
 }
 
 
@@ -479,5 +479,28 @@ void ControlPanel::on_TriggerPosition_Slider_valueChanged(int value)
 void ControlPanel::on_TriggerPosition_Box_editingFinished()
 {
     ui->TriggerPosition_Slider->setValue(ui->TriggerPosition_Box->value() * 100);
+}
+
+void ControlPanel::SetChannelColor(QColor &clr)
+{
+    QString scl = "rgb(" + QString::number(clr.red()) + ", " +
+                  QString::number(clr.green()) + ", " +
+                  QString::number(clr.blue()) + ")" ;
+
+    ui->ChannelColor_Button->setStyleSheet(
+        "QPushButton{border-radius: 4px;background-color: " + scl + ";}"
+        );
+}
+
+void ControlPanel::on_ChannelColor_Button_clicked()
+{
+    NowChannelColorButton = QColorDialog::getColor(NowChannelColorButton, this, "Choose Color");
+    if(NowChannelColorButton.isValid())
+    {
+        SetChannelColor(NowChannelColorButton);
+
+        int chan_num = ui->ChannelSelection_comboBox->currentData().value<int>();
+        emit ChangeChannelColor(chan_num, NowChannelColorButton);
+    }
 }
 

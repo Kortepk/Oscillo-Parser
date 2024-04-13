@@ -24,15 +24,18 @@ public:
     void ValueProcessing(float ReadingValue, float DeltaTime);
     void SaveLastValue();
     void DeleteElements();
+    void SetChannelColor(QColor clr);
 
     QGroupBox *QGroupBox_pointer = nullptr; // Массив указателей на GroupBox
-    QtCharts::QChartView *ChartView_pointer = nullptr; // Массив графиков
+    QtCharts::QChartView *ChartView_pointer = nullptr; // Массив графиков    QtCharts::QLineSeries Series_pointer; // Указатели на данные графика
+
     int MaxPoint = 1000;
     int fillingIndex = 0;     // Если в канале индекс выйдет за границы, то мы должно синхронизировать и другие каналы, сообщив это
     int TriggerValue = 0;     // Число, по которому срабатывает триггер
     bool AddPointFlag = true; // Флаг, разрешающий приём
     float LastTime = 0;       // Запомннает предыдущее время (положение по x)
     bool ModeMaster = false;  // Определяет кем будет какнал 0 - slaves; 1 - master. Не допускается два мастера!
+    QColor ChanColor = Qt::blue;
 
     float LastMinPoint = 0; // Запомниает максимальную и минимальную точку на всём графике
     float LastMaxPoint = 0;
@@ -47,9 +50,9 @@ signals:
     void OverloadPoints();                 // Сообщает всем остальным, что произошло переполнение буффера, и необходима синхронизация
 
 private:
-    QtCharts::QLineSeries Series_pointer; // Указатели на данные графика
     QList<QPointF> ListPoint; // Теневая переменная для буфферизации
     QPointF TempPoint;
+    QtCharts::QLineSeries Series_pointer; // Указатели на данные графика
 
     float NowMinPoint, NowMaxPoint;
 

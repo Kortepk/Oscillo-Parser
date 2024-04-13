@@ -46,7 +46,9 @@ signals:
     void AutoSize_Signal(int);
     void ChangeMaxPoint(int);
     void ChangeUpdateSet(int, int);
-    void LoadDialPosition(int, int, int&, int&, int&); // channel, lastchannel, shift, shift turn, scale
+    void LoadDialPosition(int, int, int&, int&, int&, QColor&); // channel, lastchannel, shift, shift turn, scale
+    void ChangeChannelColor(int, QColor);
+
 
 public slots:
     void on_StartPause_Button_clicked();
@@ -77,6 +79,7 @@ private slots:
     void on_TrigChannel_comboBox_currentIndexChanged(int index);
     void on_TriggerPosition_Slider_valueChanged(int value);
     void on_TriggerPosition_Box_editingFinished();
+    void on_ChannelColor_Button_clicked();
 
 private:
     Ui::ControlPanel *ui;
@@ -84,10 +87,12 @@ private:
 
     void CheckTurnFlowMode();
     void CheckUI();
+    void SetChannelColor(QColor &clr);
 
     int ChannalSize = 1;
     bool KnobBlockFlag = false;
     int LastIndex = 0;
+    QColor NowChannelColorButton = Qt::blue;
 };
 
 #endif // CONTROLPANEL_H

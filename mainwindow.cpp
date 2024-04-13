@@ -117,6 +117,7 @@ void MainWindow::initActionsConnections()
     connect(ControlPnl, &ControlPanel::ChangeMaxPoint, this, &MainWindow::ChangeMaxPointFunc);
     connect(ControlPnl, &ControlPanel::ChangeUpdateSet, this, &MainWindow::ChangePointUpdate);
     connect(ControlPnl, &ControlPanel::LoadDialPosition, this, &MainWindow::LoadSetDial);
+    connect(ControlPnl, &ControlPanel::ChangeChannelColor, this, &MainWindow::SetChannelColor);
 
     connect(ControlPnlDialog, &QDialog::finished, this, &MainWindow::CloseFlowPanel);
 
@@ -127,15 +128,23 @@ void MainWindow::initActionsConnections()
     }
 }
 
-void MainWindow::LoadSetDial(int chn, int lastchn, int& DialShiftY, int& DialTurn, int& DialScaleY)
+void MainWindow::SetChannelColor(int channel, QColor clr)
+{
+    channel -= 1;
+    ConcreteChannels[channel].SetChannelColor(clr);
+}
+
+void MainWindow::LoadSetDial(int chn, int lastchn, int& DialShiftY, int& DialTurn, int& DialScaleY, QColor& clr)
 {
     ConcreteChannels[lastchn].ChannelShiftY = DialShiftY; // Запоминаем старые значения для старого канала
     ConcreteChannels[lastchn].ChannelScaleY = DialScaleY;
     ConcreteChannels[lastchn].ChannelTurnY  = DialTurn;
+    // Цвет не записываю
 
     DialShiftY = ConcreteChannels[chn].ChannelShiftY; // Ставим новыее значения
     DialScaleY = ConcreteChannels[chn].ChannelScaleY;
-    DialTurn =   ConcreteChannels[chn].ChannelTurnY;
+    DialTurn   = ConcreteChannels[chn].ChannelTurnY;
+    clr        = ConcreteChannels[chn].ChanColor;
 }
 
 

@@ -181,8 +181,15 @@ void oscillo_channel::ValueProcessing(float ReadingValue, float DeltaTime)
 
     //qDebug() << fillingIndex << str.toFloat();
 }
+
+void oscillo_channel::SetChannelColor(QColor clr)
+{
+    ChanColor = clr;
+    Series_pointer.setColor(clr);
+}
+
+
  void oscillo_channel::DeleteElements()
 {
-
     //delete QGroupBox_pointer;
 }

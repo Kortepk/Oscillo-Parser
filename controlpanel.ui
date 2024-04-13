@@ -88,7 +88,7 @@ background-color: rgb(255, 156, 156);
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -116,31 +116,35 @@ background-color: rgb(255, 156, 156);
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QComboBox" name="ChannelSelection_comboBox">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="currentText">
-           <string/>
-          </property>
-          <property name="maxVisibleItems">
-           <number>9</number>
-          </property>
-          <property name="maxCount">
-           <number>9</number>
-          </property>
-          <property name="placeholderText">
-           <string/>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QComboBox" name="ChannelSelection_comboBox">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="currentText">
+             <string/>
+            </property>
+            <property name="maxVisibleItems">
+             <number>9</number>
+            </property>
+            <property name="maxCount">
+             <number>9</number>
+            </property>
+            <property name="placeholderText">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="QLabel" name="label_9">
@@ -434,6 +438,32 @@ background-color: rgb(255, 156, 156);
          </layout>
         </item>
        </layout>
+      </widget>
+      <widget class="QPushButton" name="ChannelColor_Button">
+       <property name="geometry">
+        <rect>
+         <x>86</x>
+         <y>12</y>
+         <width>15</width>
+         <height>15</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>15</width>
+         <height>15</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{
+border-radius: 4px;
+background-color: rgb(255, 156, 156);
+}
+</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
       </widget>
      </widget>
      <widget class="QWidget" name="tab_3">

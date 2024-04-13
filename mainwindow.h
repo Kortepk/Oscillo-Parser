@@ -48,7 +48,8 @@ private:
     void SwitchRecieveMaster(bool status);
     void OverloadPointsHandler();
     void ChangePointUpdate(int state, int value);
-    void LoadSetDial(int chn, int lastchn, int& ShiftY, int& DialTurn, int& ScaleY);
+    void LoadSetDial(int chn, int lastchn, int& ShiftY, int& DialTurn, int& ScaleY, QColor& clr);
+    void SetChannelColor(int channel, QColor clr);
 
     SettingsDialog *SetDial = nullptr;
     ControlPanel *ControlPnl = nullptr;
