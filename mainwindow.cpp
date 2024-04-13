@@ -31,7 +31,6 @@ QElapsedTimer MainTimer;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_settings(new SettingsDialog(this)),
     SetDial(new SettingsDialog(this)),
     ControlPnl()
 {
@@ -449,7 +448,7 @@ void MainWindow::on_Connect_action_triggered()
 {
     if(!MainPort->isOpen())
     {
-        const SettingsDialog::Settings p = m_settings->settings();
+        SettingsDialog::Settings p = SetDial->m_currentSettings;
         MainPort->setPortName(p.name);
         MainPort->setBaudRate(p.baudRate);
         MainPort->setDataBits(p.dataBits);

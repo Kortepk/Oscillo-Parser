@@ -84,7 +84,7 @@ void SettingsDialog::LoadSettings()
     m_currentSettings.flowControl = flowControlData.value<QSerialPort::FlowControl>();
 }
 
-SettingsDialog::Settings SettingsDialog::settings() const
+SettingsDialog::Settings SettingsDialog::settings()
 {
     return m_currentSettings;
 }
@@ -138,13 +138,6 @@ void SettingsDialog::fillPortsInfo()
     }
 }
 
-void SettingsDialog::on_Apply_pushButton_released()
-{
-    updateSettings();
-    //TODO Save port settings from file
-    hide();
-}
-
 void SettingsDialog::updateSettings()
 {
     m_currentSettings.name = ui->serialPortInfoListBox->currentText();
@@ -188,3 +181,11 @@ void SettingsDialog::updateSettings()
 
     file.close();
 }
+
+void SettingsDialog::on_Apply_pushButton_clicked()
+{
+    updateSettings();
+    //TODO Save port settings from file
+    hide();
+}
+

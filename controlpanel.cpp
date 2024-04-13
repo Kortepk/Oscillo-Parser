@@ -312,8 +312,6 @@ void ControlPanel::on_pushButtonTest_clicked()
 }
 
 
-
-
 void ControlPanel::on_Allways_rb_clicked()
 {
     const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();

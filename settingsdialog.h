@@ -25,16 +25,16 @@ public:
         QString stringStopBits;
         QSerialPort::FlowControl flowControl;
         QString stringFlowControl;
-    };
+    } m_currentSettings;
     void LoadSettings(void);
 
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
 
-    Settings settings() const;
+    Settings settings();
 
 private slots:
-    void on_Apply_pushButton_released();
+    void on_Apply_pushButton_clicked();
 
 private:
     Ui::SettingsDialog *ui;
@@ -42,7 +42,7 @@ private:
     void fillPortsInfo(void);
     void updateSettings(void);
 
-    Settings m_currentSettings;
+    //Settings m_currentSettings;
 };
 
 #endif // SETTINGSDIALOG_H

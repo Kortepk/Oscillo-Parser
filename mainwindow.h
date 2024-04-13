@@ -51,7 +51,6 @@ private:
     void LoadSetDial(int chn, int lastchn, int& ShiftY, int& DialTurn, int& ScaleY);
 
     SettingsDialog *SetDial = nullptr;
-    SettingsDialog *m_settings = nullptr;
     ControlPanel *ControlPnl = nullptr;
     QDialog *ControlPnlDialog = nullptr;
     oscillo_channel ConcreteChannels[10];
