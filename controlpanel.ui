@@ -88,7 +88,7 @@ background-color: rgb(255, 156, 156);
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -456,8 +456,8 @@ background-color: rgb(255, 156, 156);
        </property>
        <property name="styleSheet">
         <string notr="true">QPushButton{
-border-radius: 4px;
-background-color: rgb(255, 156, 156);
+	border-radius: 4px;
+	background-color: rgb(32, 159, 223);
 }
 </string>
        </property>
@@ -560,9 +560,6 @@ background-color: rgb(255, 156, 156);
           <property name="maxCount">
            <number>9</number>
           </property>
-          <property name="placeholderText">
-           <string>Channel 1</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -605,11 +602,20 @@ background-color: rgb(255, 156, 156);
           <property name="buttonSymbols">
            <enum>QAbstractSpinBox::NoButtons</enum>
           </property>
+          <property name="accelerated">
+           <bool>false</bool>
+          </property>
+          <property name="showGroupSeparator" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="decimals">
+           <number>6</number>
+          </property>
           <property name="minimum">
-           <double>-10.000000000000000</double>
+           <double>-1000.000000000000000</double>
           </property>
           <property name="maximum">
-           <double>10.000000000000000</double>
+           <double>1000.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -872,10 +878,13 @@ channels</string>
            </size>
           </property>
           <property name="minimum">
-           <number>1</number>
+           <number>0</number>
           </property>
           <property name="maximum">
            <number>9</number>
+          </property>
+          <property name="value">
+           <number>0</number>
           </property>
          </widget>
         </item>

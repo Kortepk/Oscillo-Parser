@@ -17,7 +17,7 @@ public:
     ~ControlPanel();
     int Get_GroupSizeValue();
     void Change_TurnFlowMode(bool FlowMode_Flag);
-    void SetTrigValue(float val);
+    void SetTrigValue(double val);
     void SetDialPositionScale(float x, float y, float dx, float dy);
 
     struct GraphSettings
@@ -40,7 +40,7 @@ signals:
     void ChannelChange_Signal(int); // arg: Номер канала,  cдвиг относительно триггера, позиция y, масштаб по x (времени), масштаб по y
     void StartPause_Signal();
     void TestPushButton_Signal();
-    void TriggerChanged_Signal(int, float); // arg: Канал, значение триггера
+    void TriggerChanged_Signal(int, double); // arg: Канал, значение триггера
     void ChangeParseMode_Signal(int, int); // Сообщает об единичном, постоянном или тригерном режиме
     void ClickHalfTrig_Signal(int);
     void AutoSize_Signal(int);
@@ -81,6 +81,8 @@ private slots:
     void on_TriggerPosition_Box_editingFinished();
     void on_ChannelColor_Button_clicked();
 
+    void on_TriggerPosition_Box_valueChanged(double arg1);
+
 private:
     Ui::ControlPanel *ui;
     QTimer *UItimer = new QTimer(this);
@@ -89,10 +91,12 @@ private:
     void CheckUI();
     void SetChannelColor(QColor &clr);
 
-    int ChannalSize = 1;
-    bool KnobBlockFlag = false;
+    int ChannalSize = 0;
+    bool KnobBlockFlag = false; // Флаг на блокировку крутилки
+    bool TriggerTextFlag = false; // 1 - изменение уровня триггера произошло через textLine
+    double TriggerValue = 0;
     int LastIndex = 0;
-    QColor NowChannelColorButton = Qt::blue;
+    QColor NowChannelColorButton = QColor(32, 159, 223);
 };
 
 #endif // CONTROLPANEL_H

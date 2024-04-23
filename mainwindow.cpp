@@ -60,8 +60,6 @@ void MainWindow::initSettings()
 
     ConcreteChannels[0].initSine();
 
-
-
     QVBoxLayout *groupBoxLayout = new QVBoxLayout();
     groupBoxLayout->addWidget(ConcreteChannels[0].ChartView_pointer); // Создаём текст внутри GroupBox
 
@@ -92,7 +90,7 @@ void MainWindow::UpdateGraph(void)
 
     if(MainPort->isOpen()) // 2 for trigger
     {
-        for(int i = 0; i < Channel_Size; i++)
+        for(int i = 0; i <= Channel_Size; i++)
         {
             if(ConcreteChannels[i].fillingIndex >= 2)
             ConcreteChannels[i].ReplaceDots();
@@ -130,7 +128,6 @@ void MainWindow::initActionsConnections()
 
 void MainWindow::SetChannelColor(int channel, QColor clr)
 {
-    channel -= 1;
     ConcreteChannels[channel].SetChannelColor(clr);
 }
 
@@ -166,7 +163,7 @@ void MainWindow::OverloadPointsHandler()
 {
     UpdateGraph();
 
-    for(int i=0; i < Channel_Size; i++)
+    for(int i=0; i <= Channel_Size; i++)
     {
         ConcreteChannels[i].SaveLastValue();
 
@@ -217,7 +214,6 @@ void MainWindow::AutoSizeClick(int channel)
     if(channel > Channel_Size) // Валидация на всякий случий
         return;
 
-    channel -= 1;
 
     float LastMinPoint = ConcreteChannels[channel].LastMinPoint;
     float LastMaxPoint = ConcreteChannels[channel].LastMaxPoint;
@@ -235,18 +231,16 @@ void MainWindow::CalcHalfTrigger(int channel)
     if(channel > Channel_Size) // Валидация на всякий случий
         return;
 
-    channel -= 1;
-
-    float HalfVal = (ConcreteChannels[channel].LastMaxPoint + ConcreteChannels[channel].LastMinPoint)/2;
+    double HalfVal = (ConcreteChannels[channel].LastMaxPoint + ConcreteChannels[channel].LastMinPoint)/2;
     ControlPnl->SetTrigValue(HalfVal);
 
     MainWindow::ChangeParsingMode(TriggerMode, channel + 1);
 }
 
-void MainWindow::TrigerValueChanged(int channel, float val)
+void MainWindow::TrigerValueChanged(int channel, double val)
 {
     TriggerValue = val;
-
+    qDebug() << "TrgVal" << TriggerValue;
     MainWindow::ChangeParsingMode(TriggerMode, channel);
 }
 
@@ -259,8 +253,6 @@ void MainWindow::ChangeParsingMode(int mode, int channel)
         return;
 
     //qDebug() << TriggerMode <<  TriggerValue << channel;
-
-    channel -= 1;
 
     ConcreteChannels[channel].TriggerValue = TriggerValue;
     if(mode > 0) // По триггеру
@@ -280,14 +272,14 @@ void MainWindow::TestFunction()
 
 void MainWindow::StartPauseReadData()
 {
-    PortReadFlag = !PortReadFlag;
+    PortReadFlag = !PortReadFlag; // true - кнопка горит красным, false - зелёным
 }
 
 
 void MainWindow::ChangeGraph(int channel)//float shift_x, float shift_y, float scale_x, float scale_y)
 {
     float WindSizeX = (ControlPnl->ViewGraphSet.GraphScaleX * ControlPnl->ViewGraphSet.ScalePrefixX);
-    if(channel <= 0) // Если мы производим настройку по времени
+    if(channel < 0) // Если мы производим настройку по времени
     {   // (0.0; 1.0)  * (max_x - min_x)
         ControlPnl->ViewGraphSet.ShiftMid_x = ControlPnl->ViewGraphSet.GraphShiftX * WindSizeX / 10.f + WindSizeX * ControlPnl->ViewGraphSet.DialTurnoversX; // 1 оборот - 1 крутка экрана
     }
@@ -298,16 +290,16 @@ void MainWindow::ChangeGraph(int channel)//float shift_x, float shift_y, float s
           max_y = 0;
 
 
-    if(channel > 0) // Если дан конкретный канал
+    if(channel >= 0) // Если дан конкретный канал
     {
         float shift_y = ControlPnl->ViewGraphSet.ChannelShiftY + 10 * ControlPnl->ViewGraphSet.DialTurnoversY;
         min_y = shift_y - ControlPnl->ViewGraphSet.ChannelScaleY/2;
         max_y = shift_y + ControlPnl->ViewGraphSet.ChannelScaleY/2;
-        channel -= 1;
+
         ConcreteChannels[channel].SetGraphAxis(&min_x, &min_y, &max_x, &max_y);
     }
     else
-        for(int i = 0; i < Channel_Size; i ++)
+        for(int i = 0; i <= Channel_Size; i ++)
         {
             QtCharts::QAbstractAxis *oldAxisY = ConcreteChannels[i].ChartView_pointer->chart()->axes(Qt::Vertical).at(0);
 
@@ -391,7 +383,7 @@ void MainWindow::readData()
                     str = RxBuffer.mid(3, indexEOF-3);
 
                     if(NumberChannel <= Channel_Size)
-                        ConcreteChannels[NumberChannel-1].LastTime += avergePacketTime; // Здесь мы устанавливаем новое значение, на котором отобразиться точка
+                        ConcreteChannels[NumberChannel].LastTime += avergePacketTime; // Здесь мы устанавливаем новое значение, на котором отобразиться точка
 
                     deltaTime = 0; // Сдвига в этом случае не будет
                 }
@@ -404,7 +396,7 @@ void MainWindow::readData()
                 }
 
                 if(NumberChannel <= Channel_Size)
-                    ConcreteChannels[NumberChannel-1].ValueProcessing(str.toFloat(), deltaTime);
+                    ConcreteChannels[NumberChannel].ValueProcessing(str.toFloat(), deltaTime);
             }
         }
         else
@@ -425,6 +417,7 @@ void MainWindow::CounterChannel_Changed(int arg1)
 {
     if(Channel_Size < arg1) // Количество каналов увеличилось
     {
+        Channel_Size = arg1;
         const int chn = Channel_Size;
 
         if(ConcreteChannels[chn].QGroupBox_pointer ==  nullptr)
@@ -435,9 +428,9 @@ void MainWindow::CounterChannel_Changed(int arg1)
                 ConcreteChannels[chn].ConnectSeries();
 
             ConcreteChannels[chn].CreateGroupBox("Channel " + QString::number(arg1), ControlPnl->Get_GroupSizeValue());
-            // QLabel *label = new QLabel("Label inside Group Box");
+
             QVBoxLayout *groupBoxLayout = new QVBoxLayout();
-            groupBoxLayout->addWidget(ConcreteChannels[chn].ChartView_pointer); // Создаём текст внутри GroupBox
+            groupBoxLayout->addWidget(ConcreteChannels[chn].ChartView_pointer);
             ConcreteChannels[chn].QGroupBox_pointer->setLayout(groupBoxLayout);
 
             ui->Oscillo_Channel_Area_verticalLayout->addWidget(ConcreteChannels[chn].QGroupBox_pointer); // Добавляем GB
@@ -448,14 +441,13 @@ void MainWindow::CounterChannel_Changed(int arg1)
         else
         {
             ConcreteChannels[chn].QGroupBox_pointer->show();
-
         }
     }
     else
     {
-        ConcreteChannels[arg1].DisconnectSeries();
+        ConcreteChannels[Channel_Size].DisconnectSeries();
+        Channel_Size = arg1;
     }
-    Channel_Size = arg1;
 }
 
 
@@ -480,7 +472,7 @@ void MainWindow::on_Connect_action_triggered()
             return;
         }
 
-        for(int i=0;i<Channel_Size;i++){
+        for(int i=1;i<=Channel_Size;i++){
             ConcreteChannels[i].ClearPoints();
         }
 

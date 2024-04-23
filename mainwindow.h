@@ -41,7 +41,7 @@ private:
     void StartPauseReadData();
     void TestFunction();
     void ChangeParsingMode(int mode, int channel);
-    void TrigerValueChanged(int channel, float val);
+    void TrigerValueChanged(int channel, double val);
     void CalcHalfTrigger(int channel);
     void AutoSizeClick(int channel);
     void ChangeMaxPointFunc(int pointSize);
@@ -54,13 +54,12 @@ private:
     SettingsDialog *SetDial = nullptr;
     ControlPanel *ControlPnl = nullptr;
     QDialog *ControlPnlDialog = nullptr;
-    oscillo_channel ConcreteChannels[10];
+    oscillo_channel ConcreteChannels[10]; // 0 - mix channel, 1 - 1 chan, 2 - 2
 
-    int Channel_Size = 1; // Указывает сколько сейчас каналов
+    int Channel_Size = 0; // Указывает сколько сейчас каналов (mix - всегда)
     int TriggerMode = 0;  // 0 = Allways; 1 = Single; 2 = By trigger
-    float TriggerValue = 0;
+    double TriggerValue = 0;
     bool PortReadFlag = true;
     bool UpdWhenFill = false; // updating when filling out
-
 };
 #endif // MAINWINDOW_H

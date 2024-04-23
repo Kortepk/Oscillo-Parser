@@ -31,11 +31,11 @@ public:
 
     int MaxPoint = 1000;
     int fillingIndex = 0;     // Если в канале индекс выйдет за границы, то мы должно синхронизировать и другие каналы, сообщив это
-    int TriggerValue = 0;     // Число, по которому срабатывает триггер
+    double TriggerValue = 0;     // Число, по которому срабатывает триггер
     bool AddPointFlag = true; // Флаг, разрешающий приём
     float LastTime = 0;       // Запомннает предыдущее время (положение по x)
     bool ModeMaster = false;  // Определяет кем будет какнал 0 - slaves; 1 - master. Не допускается два мастера!
-    QColor ChanColor = Qt::blue;
+    QColor ChanColor = QColor(32, 159, 223);
 
     float LastMinPoint = 0; // Запомниает максимальную и минимальную точку на всём графике
     float LastMaxPoint = 0;
@@ -43,7 +43,7 @@ public:
 
     int ChannelScaleY = 1;
     int ChannelShiftY = 0;
-    int ChannelTurnY;
+    int ChannelTurnY = 0;
 
 signals:
     void MasterHandle_Signal(bool status); // Master сообщает slaves о необходимости начать/прекратить сбор данных

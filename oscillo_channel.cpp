@@ -83,6 +83,9 @@ void oscillo_channel::CreateGroupBox(QString str, int gsize)
 
 void oscillo_channel::ConnectSeries()
 {
+    if(ChartView_pointer == nullptr)
+        ChartView_pointer = new QtCharts::QChartView();
+
     ChartView_pointer->chart()->addSeries(&Series_pointer);
     ChartView_pointer->chart()->createDefaultAxes();
     ChartView_pointer->chart()->legend()->hide();

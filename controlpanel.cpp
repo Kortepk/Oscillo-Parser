@@ -21,8 +21,8 @@ ControlPanel::ControlPanel(QWidget *parent)
     //for(int i=1; i<=9; i++)
     //    ui->ChannelSelection_comboBox->addItem("Channel " + QString::number(i), i);
 
-    ui->ChannelSelection_comboBox->addItem("Channel 1", 1);
-    ui->TrigChannel_comboBox->addItem("Channel 1", 1);
+    ui->ChannelSelection_comboBox->addItem("Channel mix", 0);
+    //ui->TrigChannel_comboBox->addItem("Channel mix", 0);
 
     ui->ChannelSelection_comboBox->setCurrentIndex(0);
     ui->TrigChannel_comboBox->setCurrentIndex(0);
@@ -349,14 +349,17 @@ void ControlPanel::on_SetHalf_Button_clicked()
     emit ClickHalfTrig_Signal(chan_num);
 }
 
-void ControlPanel::SetTrigValue(float val)
+void ControlPanel::SetTrigValue(double val)
 {
-    ui->TriggerPosition_Slider->setValue(100 * val);
+    //ui->TriggerPosition_Slider->setValue(100 * val);
+    ui->TriggerPosition_Box->setValue(val);
+    emit ui->TriggerPosition_Box->editingFinished();
 }
 
 void ControlPanel::on_AutoSize_Button_clicked()
 {
     int chan_num = ui->ChannelSelection_comboBox->currentData().value<int>();
+    qDebug() << "as)" << chan_num;
     emit AutoSize_Signal(chan_num);
 }
 
@@ -470,15 +473,25 @@ void ControlPanel::on_TrigChannel_comboBox_currentIndexChanged(int index)
 
 void ControlPanel::on_TriggerPosition_Slider_valueChanged(int value)
 {
-    const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
-    float fl_val = value / 100.f;
-    ui->TriggerPosition_Box->setValue(fl_val);
-    emit TriggerChanged_Signal(chan_num, fl_val);
+    if(!TriggerTextFlag)
+    {
+        const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
+        TriggerValue = value / 100.;
+        ui->TriggerPosition_Box->setValue(TriggerValue);
+        emit TriggerChanged_Signal(chan_num, TriggerValue);
+    }
+    TriggerTextFlag = false;
 }
 
 void ControlPanel::on_TriggerPosition_Box_editingFinished()
 {
-    ui->TriggerPosition_Slider->setValue(ui->TriggerPosition_Box->value() * 100);
+    const int chan_num = ui->TrigChannel_comboBox->currentData().value<int>();
+    TriggerTextFlag = true;
+    TriggerValue = ui->TriggerPosition_Box->value();
+
+    emit TriggerChanged_Signal(chan_num, TriggerValue);
+
+    ui->TriggerPosition_Slider->setValue(TriggerValue * 100);
 }
 
 void ControlPanel::SetChannelColor(QColor &clr)

@@ -95,7 +95,7 @@
              </size>
             </property>
             <property name="title">
-             <string>Channel 1</string>
+             <string>Channel mix</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
